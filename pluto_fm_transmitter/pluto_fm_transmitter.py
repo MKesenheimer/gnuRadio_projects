@@ -6,6 +6,7 @@
 #
 # GNU Radio Python Flow Graph
 # Title: Not titled yet
+# Author: kesenheimer
 # GNU Radio version: 3.8.2.0
 
 from distutils.version import StrictVersion
@@ -24,19 +25,20 @@ from PyQt5 import Qt
 from gnuradio import qtgui
 from gnuradio.filter import firdes
 import sip
+from gnuradio import analog
 from gnuradio import blocks
+from gnuradio import filter
 from gnuradio import gr
 import sys
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio.qtgui import Range, RangeWidget
 import iio
 
 from gnuradio import qtgui
 
-class pluto_test(gr.top_block, Qt.QWidget):
+class pluto_fm_transmitter(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "Not titled yet")
@@ -59,7 +61,7 @@ class pluto_test(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "pluto_test")
+        self.settings = Qt.QSettings("GNU Radio", "pluto_fm_transmitter")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -72,48 +74,58 @@ class pluto_test(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 10e6
-        self.gain = gain = 1
-        self.f0 = f0 = 433e6
-        self.bandwidth = bandwidth = samp_rate
+        self.samp_rate = samp_rate = 576e3
+        self.freq_0 = freq_0 = 94.3e6
+        self.audio_rate = audio_rate = 48e3
 
         ##################################################
         # Blocks
         ##################################################
-        self._f0_range = Range(100e6, 2000e6, 10e6, 433e6, 200)
-        self._f0_win = RangeWidget(self._f0_range, self.set_f0, 'Frequency', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._f0_win)
+        self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
+                interpolation=int(samp_rate),
+                decimation=int(audio_rate),
+                taps=None,
+                fractional_bw=None)
         self.qtgui_sink_x_0 = qtgui.sink_c(
             1024, #fftsize
             firdes.WIN_BLACKMAN_hARRIS, #wintype
             0, #fc
-            bandwidth, #bw
+            samp_rate, #bw
             "", #name
             True, #plotfreq
             True, #plotwaterfall
             True, #plottime
             True #plotconst
         )
-        self.qtgui_sink_x_0.set_update_time(1.0/100)
+        self.qtgui_sink_x_0.set_update_time(1.0/10)
         self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.pyqwidget(), Qt.QWidget)
 
         self.qtgui_sink_x_0.enable_rf_freq(False)
 
         self.top_grid_layout.addWidget(self._qtgui_sink_x_0_win)
-        self.iio_pluto_source_0 = iio.pluto_source('usb:20.19.5', int(f0), int(samp_rate), int(bandwidth), 32768, True, True, True, 'manual', 74.5, '', True)
-        self.blocks_multiply_const_xx_0 = blocks.multiply_const_cc(gain, 1)
+        self.iio_pluto_sink_0 = iio.pluto_sink('usb:20.19.5', int(freq_0), int(samp_rate), 20000000, 32768, False, 0.0, '', True)
+        self.blocks_wavfile_source_0 = blocks.wavfile_source('/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/pluto_fm_transmitter/Geburtstags_Polka.wav', True)
+        self.analog_wfm_tx_0 = analog.wfm_tx(
+        	audio_rate=int(samp_rate),
+        	quad_rate=int(samp_rate),
+        	tau=75e-6,
+        	max_dev=75e3,
+        	fh=-1.0,
+        )
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_multiply_const_xx_0, 0), (self.qtgui_sink_x_0, 0))
-        self.connect((self.iio_pluto_source_0, 0), (self.blocks_multiply_const_xx_0, 0))
+        self.connect((self.analog_wfm_tx_0, 0), (self.iio_pluto_sink_0, 0))
+        self.connect((self.analog_wfm_tx_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.blocks_wavfile_source_0, 0), (self.rational_resampler_xxx_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_tx_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "pluto_test")
+        self.settings = Qt.QSettings("GNU Radio", "pluto_fm_transmitter")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
@@ -122,36 +134,27 @@ class pluto_test(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.set_bandwidth(self.samp_rate)
-        self.iio_pluto_source_0.set_params(int(self.f0), int(self.samp_rate), int(self.bandwidth), True, True, True, 'manual', 74.5, '', True)
+        self.iio_pluto_sink_0.set_params(int(self.freq_0), int(self.samp_rate), 20000000, 0.0, '', True)
+        self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
 
-    def get_gain(self):
-        return self.gain
+    def get_freq_0(self):
+        return self.freq_0
 
-    def set_gain(self, gain):
-        self.gain = gain
-        self.blocks_multiply_const_xx_0.set_k(self.gain)
+    def set_freq_0(self, freq_0):
+        self.freq_0 = freq_0
+        self.iio_pluto_sink_0.set_params(int(self.freq_0), int(self.samp_rate), 20000000, 0.0, '', True)
 
-    def get_f0(self):
-        return self.f0
+    def get_audio_rate(self):
+        return self.audio_rate
 
-    def set_f0(self, f0):
-        self.f0 = f0
-        self.iio_pluto_source_0.set_params(int(self.f0), int(self.samp_rate), int(self.bandwidth), True, True, True, 'manual', 74.5, '', True)
-
-    def get_bandwidth(self):
-        return self.bandwidth
-
-    def set_bandwidth(self, bandwidth):
-        self.bandwidth = bandwidth
-        self.iio_pluto_source_0.set_params(int(self.f0), int(self.samp_rate), int(self.bandwidth), True, True, True, 'manual', 74.5, '', True)
-        self.qtgui_sink_x_0.set_frequency_range(0, self.bandwidth)
+    def set_audio_rate(self, audio_rate):
+        self.audio_rate = audio_rate
 
 
 
 
 
-def main(top_block_cls=pluto_test, options=None):
+def main(top_block_cls=pluto_fm_transmitter, options=None):
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')

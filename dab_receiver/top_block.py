@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Not titled yet
+# Title: Top Block
 # GNU Radio version: 3.8.2.0
 
 from distutils.version import StrictVersion
@@ -20,28 +20,28 @@ if __name__ == '__main__':
         except:
             print("Warning: failed to XInitThreads()")
 
-from PyQt5 import Qt
-from gnuradio import qtgui
-from gnuradio.filter import firdes
-import sip
-from gnuradio import blocks
+from gnuradio import audio
 from gnuradio import gr
+from gnuradio.filter import firdes
 import sys
 import signal
+from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio.qtgui import Range, RangeWidget
-import iio
+import grdab
+import osmosdr
+import time
 
 from gnuradio import qtgui
 
-class pluto_test(gr.top_block, Qt.QWidget):
+class top_block(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet")
+        gr.top_block.__init__(self, "Top Block")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Not titled yet")
+        self.setWindowTitle("Top Block")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -59,7 +59,7 @@ class pluto_test(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "pluto_test")
+        self.settings = Qt.QSettings("GNU Radio", "top_block")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -72,48 +72,65 @@ class pluto_test(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 10e6
-        self.gain = gain = 1
-        self.f0 = f0 = 433e6
-        self.bandwidth = bandwidth = samp_rate
+        self.samp_rate = samp_rate = 2000000
+        self.gain_slider = gain_slider = 50
 
         ##################################################
         # Blocks
         ##################################################
-        self._f0_range = Range(100e6, 2000e6, 10e6, 433e6, 200)
-        self._f0_win = RangeWidget(self._f0_range, self.set_f0, 'Frequency', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._f0_win)
-        self.qtgui_sink_x_0 = qtgui.sink_c(
-            1024, #fftsize
-            firdes.WIN_BLACKMAN_hARRIS, #wintype
-            0, #fc
-            bandwidth, #bw
-            "", #name
-            True, #plotfreq
-            True, #plotwaterfall
-            True, #plottime
-            True #plotconst
+        self.rtlsdr_source_0 = osmosdr.source(
+            args="numchan=" + str(1) + " " + ""
         )
-        self.qtgui_sink_x_0.set_update_time(1.0/100)
-        self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.rtlsdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.rtlsdr_source_0.set_sample_rate(samp_rate)
+        self.rtlsdr_source_0.set_center_freq(201072000, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
+        self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
+        self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
+        self.rtlsdr_source_0.set_gain_mode(False, 0)
+        self.rtlsdr_source_0.set_gain(10, 0)
+        self.rtlsdr_source_0.set_if_gain(20, 0)
+        self.rtlsdr_source_0.set_bb_gain(20, 0)
+        self.rtlsdr_source_0.set_antenna('', 0)
+        self.rtlsdr_source_0.set_bandwidth(0, 0)
+        self._gain_slider_range = Range(0, 100, 1, 50, 200)
+        self._gain_slider_win = RangeWidget(self._gain_slider_range, self.set_gain_slider, 'Gain', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._gain_slider_win)
+        self.dab_ofdm_demod_0 = grdab.ofdm_demod(
+                  grdab.parameters.dab_parameters(
+                    mode=1,
+                    sample_rate=samp_rate,
+                    verbose=False
+                  ),
+                  grdab.parameters.receiver_parameters(
+                    mode=1,
+                    softbits=True,
+                    input_fft_filter=True,
+                    autocorrect_sample_rate=True,
+                    sample_rate_correction_factor=1+float(0)*1e-6,
+                    always_include_resample=True,
+                    verbose=False,
+                    correct_ffe=True,
+                    equalize_magnitude=True
+                  )
+                )
 
-        self.qtgui_sink_x_0.enable_rf_freq(False)
-
-        self.top_grid_layout.addWidget(self._qtgui_sink_x_0_win)
-        self.iio_pluto_source_0 = iio.pluto_source('usb:20.19.5', int(f0), int(samp_rate), int(bandwidth), 32768, True, True, True, 'manual', 74.5, '', True)
-        self.blocks_multiply_const_xx_0 = blocks.multiply_const_cc(gain, 1)
+        self.dab_dabplus_audio_decoder_ff_0 = grdab.dabplus_audio_decoder_ff(grdab.parameters.dab_parameters(mode=1, sample_rate=samp_rate, verbose=False), 112, 234, 84, 2, True)
+        self.audio_sink_0 = audio.sink(48000, '', True)
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_multiply_const_xx_0, 0), (self.qtgui_sink_x_0, 0))
-        self.connect((self.iio_pluto_source_0, 0), (self.blocks_multiply_const_xx_0, 0))
+        self.connect((self.dab_dabplus_audio_decoder_ff_0, 1), (self.audio_sink_0, 1))
+        self.connect((self.dab_dabplus_audio_decoder_ff_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.dab_ofdm_demod_0, 0), (self.dab_dabplus_audio_decoder_ff_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.dab_ofdm_demod_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "pluto_test")
+        self.settings = Qt.QSettings("GNU Radio", "top_block")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
@@ -122,36 +139,19 @@ class pluto_test(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.set_bandwidth(self.samp_rate)
-        self.iio_pluto_source_0.set_params(int(self.f0), int(self.samp_rate), int(self.bandwidth), True, True, True, 'manual', 74.5, '', True)
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
-    def get_gain(self):
-        return self.gain
+    def get_gain_slider(self):
+        return self.gain_slider
 
-    def set_gain(self, gain):
-        self.gain = gain
-        self.blocks_multiply_const_xx_0.set_k(self.gain)
-
-    def get_f0(self):
-        return self.f0
-
-    def set_f0(self, f0):
-        self.f0 = f0
-        self.iio_pluto_source_0.set_params(int(self.f0), int(self.samp_rate), int(self.bandwidth), True, True, True, 'manual', 74.5, '', True)
-
-    def get_bandwidth(self):
-        return self.bandwidth
-
-    def set_bandwidth(self, bandwidth):
-        self.bandwidth = bandwidth
-        self.iio_pluto_source_0.set_params(int(self.f0), int(self.samp_rate), int(self.bandwidth), True, True, True, 'manual', 74.5, '', True)
-        self.qtgui_sink_x_0.set_frequency_range(0, self.bandwidth)
+    def set_gain_slider(self, gain_slider):
+        self.gain_slider = gain_slider
 
 
 
 
 
-def main(top_block_cls=pluto_test, options=None):
+def main(top_block_cls=top_block, options=None):
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')

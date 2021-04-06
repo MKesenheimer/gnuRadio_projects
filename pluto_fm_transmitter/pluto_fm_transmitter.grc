@@ -1,6 +1,6 @@
 options:
   parameters:
-    author: ''
+    author: kesenheimer
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -10,7 +10,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: pluto_test
+    id: pluto_fm_transmitter
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -32,56 +32,35 @@ options:
     state: enabled
 
 blocks:
-- name: bandwidth
+- name: audio_rate
   id: variable
   parameters:
     comment: ''
-    value: samp_rate
+    value: 48e3
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [407, 16]
+    coordinate: [193, 83]
     rotation: 0
     state: true
-- name: f0
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: Frequency
-    min_len: '200'
-    orient: Qt.Horizontal
-    rangeType: float
-    start: 100e6
-    step: 10e6
-    stop: 2000e6
-    value: 433e6
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [278, 11]
-    rotation: 0
-    state: true
-- name: gain
+- name: freq_0
   id: variable
   parameters:
     comment: ''
-    value: '1'
+    value: 94.3e6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [492, 19]
+    coordinate: [287, 13]
     rotation: 0
     state: true
 - name: samp_rate
   id: variable
   parameters:
     comment: ''
-    value: 10e6
+    value: 576e3
   states:
     bus_sink: false
     bus_source: false
@@ -89,49 +68,64 @@ blocks:
     coordinate: [184, 12]
     rotation: 0
     state: enabled
-- name: blocks_multiply_const_xx_0
-  id: blocks_multiply_const_xx
+- name: analog_wfm_tx_0
+  id: analog_wfm_tx
   parameters:
     affinity: ''
     alias: ''
+    audio_rate: int(samp_rate)
     comment: ''
-    const: gain
+    fh: '-1.0'
+    max_dev: 75e3
     maxoutbuf: '0'
     minoutbuf: '0'
-    type: complex
-    vlen: '1'
+    quad_rate: int(samp_rate)
+    tau: 75e-6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [389, 253]
+    coordinate: [468, 210]
     rotation: 0
     state: true
-- name: iio_pluto_source_0
-  id: iio_pluto_source
+- name: blocks_wavfile_source_0
+  id: blocks_wavfile_source
   parameters:
     affinity: ''
     alias: ''
-    auto_filter: 'True'
-    bandwidth: int(bandwidth)
-    bbdc: 'True'
-    buffer_size: '32768'
     comment: ''
-    filter: ''
-    frequency: int(f0)
-    gain1: '''manual'''
-    manual_gain1: '74.5'
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/pluto_fm_transmitter/Geburtstags_Polka.wav
     maxoutbuf: '0'
     minoutbuf: '0'
-    quadrature: 'True'
-    rfdc: 'True'
+    nchan: '1'
+    repeat: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [35, 235]
+    rotation: 0
+    state: true
+- name: iio_pluto_sink_0
+  id: iio_pluto_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    attenuation1: '0.0'
+    auto_filter: 'True'
+    bandwidth: '20000000'
+    buffer_size: '32768'
+    comment: ''
+    cyclic: 'False'
+    filter: ''
+    frequency: int(freq_0)
     samplerate: int(samp_rate)
     uri: usb:20.19.5
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [170, 187]
+    coordinate: [787, 94]
     rotation: 0
     state: true
 - name: qtgui_sink_x_0
@@ -139,7 +133,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    bw: bandwidth
+    bw: samp_rate
     comment: ''
     fc: '0'
     fftsize: '1024'
@@ -151,7 +145,7 @@ blocks:
     plotfreq: 'True'
     plottime: 'True'
     plotwaterfall: 'True'
-    rate: '100'
+    rate: '10'
     showports: 'False'
     showrf: 'False'
     type: complex
@@ -160,13 +154,35 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [601, 245]
+    coordinate: [778, 334]
     rotation: 0
     state: true
+- name: rational_resampler_xxx_0
+  id: rational_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: int(audio_rate)
+    fbw: '0'
+    interp: int(samp_rate)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    taps: ''
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [260, 217]
+    rotation: 0
+    state: enabled
 
 connections:
-- [blocks_multiply_const_xx_0, '0', qtgui_sink_x_0, '0']
-- [iio_pluto_source_0, '0', blocks_multiply_const_xx_0, '0']
+- [analog_wfm_tx_0, '0', iio_pluto_sink_0, '0']
+- [analog_wfm_tx_0, '0', qtgui_sink_x_0, '0']
+- [blocks_wavfile_source_0, '0', rational_resampler_xxx_0, '0']
+- [rational_resampler_xxx_0, '0', analog_wfm_tx_0, '0']
 
 metadata:
   file_format: 1
