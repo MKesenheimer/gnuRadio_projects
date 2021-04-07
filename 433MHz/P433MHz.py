@@ -27,6 +27,7 @@ from gnuradio.filter import firdes
 import sip
 from gnuradio import analog
 from gnuradio import blocks
+import pmt
 from gnuradio import digital
 from gnuradio import fft
 from gnuradio.fft import window
@@ -40,7 +41,6 @@ from gnuradio import eng_notation
 from gnuradio.qtgui import Range, RangeWidget
 from set_variable import set_variable
 import find_max_channel
-import iio
 
 from gnuradio import qtgui
 
@@ -81,7 +81,7 @@ class P433MHz(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 2.5e6
-        self.samp_per_sym = samp_per_sym = 1596
+        self.samp_per_sym = samp_per_sym = 1250
         self.samp_decimation = samp_decimation = 32
         self.npoints = npoints = 1024
         self.gain = gain = 10
@@ -94,7 +94,6 @@ class P433MHz(gr.top_block, Qt.QWidget):
         self._gain_range = Range(1, 1000, 1, 10, 200)
         self._gain_win = RangeWidget(self._gain_range, self.set_gain, 'gain', "counter_slider", float)
         self.top_grid_layout.addWidget(self._gain_win)
-        self.set_variable_0 = set_variable(self.set_freq_0)
         self.qtgui_sink_x_0 = qtgui.sink_c(
             1024, #fftsize
             firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -121,10 +120,10 @@ class P433MHz(gr.top_block, Qt.QWidget):
                 2e3,
                 firdes.WIN_HAMMING,
                 6.76))
-        self.iio_pluto_source_0 = iio.pluto_source('', 433430000, int(samp_rate), 20000000, 32768, True, True, True, 'manual', 64, '', True)
         self.find_max_channel_0 = find_max_channel.find_max_channel(npoints, 80)
         self.fft_vxx_0 = fft.fft_vcc(npoints, True, window.blackmanharris(npoints), True, 1)
         self.digital_clock_recovery_mm_xx_0 = digital.clock_recovery_mm_ff(samp_per_sym*(1+0.0), 0.25*0.175*0.175, 0.5, 0.175, 0.005)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_threshold_ff_0 = blocks.threshold_ff(0.1, 0.25, 0)
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, 1024)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_LSB_FIRST)
@@ -133,6 +132,8 @@ class P433MHz(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_ff(-band_width/npoints)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(gain)
         self.blocks_float_to_char_0 = blocks.float_to_char(1, 1)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/433MHz/Garage-434MHz_25Mss_2021-04-07T15_08_51_846.complex', True, 0, 0)
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/433MHz/stdout', False)
         self.blocks_file_sink_0.set_unbuffered(True)
         self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, 4*npoints)
@@ -158,21 +159,21 @@ class P433MHz(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_add_const_vxx_1, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.find_max_channel_0, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle_0, 0))
         self.connect((self.blocks_float_to_char_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.analog_am_demod_cf_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.set_variable_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.blocks_null_sink_1, 0))
         self.connect((self.blocks_multiply_xx_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_multiply_xx_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_stream_to_vector_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.blocks_threshold_ff_0, 0), (self.digital_clock_recovery_mm_xx_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_delay_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_stream_to_vector_0, 0))
         self.connect((self.digital_clock_recovery_mm_xx_0, 0), (self.blocks_float_to_char_0, 0))
         self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
         self.connect((self.find_max_channel_0, 0), (self.blocks_add_const_vxx_1, 0))
-        self.connect((self.iio_pluto_source_0, 0), (self.blocks_delay_0, 0))
-        self.connect((self.iio_pluto_source_0, 0), (self.blocks_stream_to_vector_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.set_variable_0, 0), (self.blocks_null_sink_1, 0))
 
 
     def closeEvent(self, event):
@@ -186,7 +187,7 @@ class P433MHz(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
-        self.iio_pluto_source_0.set_params(433430000, int(self.samp_rate), 20000000, True, True, True, 'manual', 64, '', True)
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 10e3, 2e3, firdes.WIN_HAMMING, 6.76))
         self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
 

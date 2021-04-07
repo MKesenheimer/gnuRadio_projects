@@ -105,7 +105,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '1596'
+    value: '1250'
   states:
     bus_sink: false
     bus_source: false
@@ -262,7 +262,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/433MHz/434MHz_2.5Mss_2021-03-28T07_24_36_441.complex
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/433MHz/Garage-434MHz_25Mss_2021-04-07T15_08_51_846.complex
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -276,7 +276,7 @@ blocks:
     bus_structure: null
     coordinate: [16, 132.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_float_to_char_0
   id: blocks_float_to_char
   parameters:
@@ -456,7 +456,7 @@ blocks:
     bus_structure: null
     coordinate: [232, 156.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: digital_clock_recovery_mm_xx_0
   id: digital_clock_recovery_mm_xx
   parameters:
@@ -542,7 +542,7 @@ blocks:
     bus_structure: null
     coordinate: [16, 276.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: low_pass_filter_0
   id: low_pass_filter
   parameters:
@@ -971,7 +971,7 @@ blocks:
     bus_structure: null
     coordinate: [520, 668.0]
     rotation: 180
-    state: enabled
+    state: bypassed
 
 connections:
 - [analog_am_demod_cf_0, '0', blocks_add_const_vxx_0, '0']

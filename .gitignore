@@ -3,4 +3,6 @@
 *.sdriq
 *.wav
 *.complex
+*.dat
+*.npy
 __pycache__
