@@ -5,5 +5,5 @@
 *.complex
 *.dat
 *.npy
-io-home
+*.raw
 __pycache__
