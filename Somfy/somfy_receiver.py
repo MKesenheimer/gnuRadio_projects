@@ -37,6 +37,7 @@ import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+import manchester_decode
 
 from gnuradio import qtgui
 
@@ -126,12 +127,15 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_1_win = sip.wrapinstance(self.qtgui_freq_sink_x_1.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_1_win)
+        self.manchester_decode_0 = manchester_decode.manchester_decode(2, 38, 10, 1, 1)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_null_sink_0_0_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/io-home/somfy_868.949MHz_2.4Mss.complex', False, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_char*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/stdout', False)
+        self.blocks_file_sink_1.set_unbuffered(True)
         self.OOK_demodulator_improved_0_1 = OOK_demodulator_improved(
             fbaud=baud_rate,
             freq=dfctr2,
@@ -160,6 +164,7 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.OOK_demodulator_improved_0, 1), (self.blocks_null_sink_0, 0))
+        self.connect((self.OOK_demodulator_improved_0, 0), (self.manchester_decode_0, 0))
         self.connect((self.OOK_demodulator_improved_0, 2), (self.qtgui_freq_sink_x_1, 0))
         self.connect((self.OOK_demodulator_improved_0_0, 1), (self.blocks_null_sink_0_0_0, 0))
         self.connect((self.OOK_demodulator_improved_0_0, 2), (self.qtgui_freq_sink_x_1, 1))
@@ -169,6 +174,7 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_1, 0))
+        self.connect((self.manchester_decode_0, 0), (self.blocks_file_sink_1, 0))
 
 
     def closeEvent(self, event):

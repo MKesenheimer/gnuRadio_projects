@@ -200,6 +200,24 @@ blocks:
     coordinate: [968, 136.0]
     rotation: 0
     state: disabled
+- name: blocks_file_sink_1
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/stdout
+    type: byte
+    unbuffered: 'True'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1016, 24.0]
+    rotation: 0
+    state: true
 - name: blocks_file_source_0
   id: blocks_file_source
   parameters:
@@ -308,6 +326,26 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [280, 412.0]
+    rotation: 0
+    state: true
+- name: manchester_decode_0
+  id: manchester_decode
+  parameters:
+    affinity: ''
+    alias: ''
+    bit_mode: '1'
+    comment: ''
+    endianess: '1'
+    maxoutbuf: '0'
+    message_length: '38'
+    minoutbuf: '0'
+    nsync_symbols: '10'
+    samples_per_symbol: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [792, 12.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_1
@@ -847,6 +885,7 @@ blocks:
 
 connections:
 - [OOK_demodulator_improved_0, '0', blocks_streams_to_vector_0_0, '0']
+- [OOK_demodulator_improved_0, '0', manchester_decode_0, '0']
 - [OOK_demodulator_improved_0, '0', qtgui_time_sink_x_0, '0']
 - [OOK_demodulator_improved_0, '1', blocks_null_sink_0, '0']
 - [OOK_demodulator_improved_0, '2', qtgui_freq_sink_x_1, '0']
@@ -863,6 +902,7 @@ connections:
 - [blocks_throttle_0, '0', OOK_demodulator_improved_0, '0']
 - [blocks_throttle_0, '0', OOK_demodulator_improved_0_0, '0']
 - [blocks_throttle_0, '0', OOK_demodulator_improved_0_1, '0']
+- [manchester_decode_0, '0', blocks_file_sink_1, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0_0, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0_1, '0']
