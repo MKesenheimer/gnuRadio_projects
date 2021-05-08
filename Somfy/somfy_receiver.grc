@@ -92,6 +92,39 @@ blocks:
     coordinate: [240, 8.0]
     rotation: 0
     state: enabled
+- name: omega_n_norm
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: 1,0,1,2
+    label: Normalized Bandwidth
+    min_len: '200'
+    orient: Qt.Horizontal
+    rangeType: float
+    start: '0.0'
+    step: '0.001'
+    stop: 2.0*math.pi*0.25
+    value: '0.045'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 4.0]
+    rotation: 0
+    state: enabled
+- name: samp_per_sym
+  id: variable
+  parameters:
+    comment: ''
+    value: '5'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [640, 8.0]
+    rotation: 0
+    state: true
 - name: samp_rate
   id: variable
   parameters:
@@ -102,6 +135,48 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [152, 8.0]
+    rotation: 0
+    state: enabled
+- name: ted_gain
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: 2,0,1,2
+    label: Expected TED Gain
+    min_len: '200'
+    orient: Qt.Horizontal
+    rangeType: float
+    start: '0.05'
+    step: '0.01'
+    stop: '5.0'
+    value: '1'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 4.0]
+    rotation: 0
+    state: enabled
+- name: zeta
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: 0,0,1,2
+    label: Damping Factor
+    min_len: '200'
+    orient: Qt.Horizontal
+    rangeType: float
+    start: '0.1'
+    step: '0.1'
+    stop: '5.0'
+    value: '1.0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [896, 4.0]
     rotation: 0
     state: enabled
 - name: OOK_demodulator_improved_0
@@ -121,7 +196,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 124.0]
+    coordinate: [448, 388.0]
     rotation: 0
     state: true
 - name: OOK_demodulator_improved_0_0
@@ -134,14 +209,14 @@ blocks:
     freq: dfctr3
     maxoutbuf: '0'
     minoutbuf: '0'
-    offset: '0'
+    offset: '-0.01'
     re_samp_rate: '96000'
     samp_rate: samp_rate
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 236.0]
+    coordinate: [448, 500.0]
     rotation: 0
     state: true
 - name: OOK_demodulator_improved_0_1
@@ -161,9 +236,26 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 348.0]
+    coordinate: [448, 612.0]
     rotation: 0
     state: true
+- name: blocks_char_to_float_0
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
+    vlen: '3'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [984, 400.0]
+    rotation: 0
+    state: enabled
 - name: blocks_file_sink_0
   id: blocks_file_sink
   parameters:
@@ -179,7 +271,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 464.0]
+    coordinate: [448, 728.0]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0
@@ -189,7 +281,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_sliced_96k_byte_cx2.raw
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_sliced.raw
     type: float
     unbuffered: 'False'
     vlen: '3'
@@ -197,17 +289,35 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [968, 136.0]
+    coordinate: [1128, 384.0]
     rotation: 0
-    state: disabled
-- name: blocks_file_sink_1
+    state: enabled
+- name: blocks_file_sink_0_0_0_0
   id: blocks_file_sink
   parameters:
     affinity: ''
     alias: ''
     append: 'False'
     comment: ''
-    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/stdout
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_clock_recovery.raw
+    type: float
+    unbuffered: 'True'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1576, 128.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0_0_0_0_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/out.bin
     type: byte
     unbuffered: 'True'
     vlen: '1'
@@ -215,9 +325,45 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1016, 24.0]
+    coordinate: [1928, 208.0]
     rotation: 0
-    state: true
+    state: enabled
+- name: blocks_file_sink_0_0_0_0_1
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_demod.raw
+    type: float
+    unbuffered: 'False'
+    vlen: '3'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1008, 512.0]
+    rotation: 0
+    state: disabled
+- name: blocks_file_sink_0_0_0_0_2
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_filter.raw
+    type: float
+    unbuffered: 'False'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [752, 144.0]
+    rotation: 180
+    state: disabled
 - name: blocks_file_source_0
   id: blocks_file_source
   parameters:
@@ -237,61 +383,65 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 388.0]
+    coordinate: [32, 652.0]
     rotation: 0
     state: true
-- name: blocks_null_sink_0
-  id: blocks_null_sink
+- name: blocks_float_to_char_0
+  id: blocks_float_to_char
   parameters:
     affinity: ''
     alias: ''
-    bus_structure_sink: '[[0,],]'
     comment: ''
-    num_inputs: '1'
-    type: byte
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [968, 236.0]
+    coordinate: [1576, 220.0]
     rotation: 0
     state: true
-- name: blocks_null_sink_0_0
-  id: blocks_null_sink
+- name: blocks_repack_bits_bb_0
+  id: blocks_repack_bits_bb
   parameters:
     affinity: ''
     alias: ''
-    bus_structure_sink: '[[0,],]'
+    align_output: 'False'
     comment: ''
-    num_inputs: '1'
-    type: byte
-    vlen: '1'
+    endianness: gr.GR_MSB_FIRST
+    k: '1'
+    l: '8'
+    len_tag_key: '""'
+    maxoutbuf: '0'
+    minoutbuf: '0'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [968, 332.0]
+    coordinate: [1736, 216.0]
     rotation: 0
-    state: true
-- name: blocks_null_sink_0_0_0
-  id: blocks_null_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_sink: '[[0,],]'
-    comment: ''
-    num_inputs: '1'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [968, 284.0]
-    rotation: 0
-    state: true
+    state: enabled
 - name: blocks_streams_to_vector_0_0
+  id: blocks_streams_to_vector
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_streams: '3'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [824, 372.0]
+    rotation: 0
+    state: enabled
+- name: blocks_streams_to_vector_0_0_0
   id: blocks_streams_to_vector
   parameters:
     affinity: ''
@@ -306,9 +456,27 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 124.0]
+    coordinate: [824, 500.0]
     rotation: 0
     state: disabled
+- name: blocks_threshold_ff_0
+  id: blocks_threshold_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    high: '0.2'
+    init: '0'
+    low: '-0.2'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1368, 184.0]
+    rotation: 0
+    state: true
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -325,29 +493,96 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 412.0]
+    coordinate: [240, 676.0]
     rotation: 0
     state: true
-- name: manchester_decode_0
-  id: manchester_decode
+- name: digital_symbol_sync_xx_0_0
+  id: digital_symbol_sync_xx
   parameters:
     affinity: ''
     alias: ''
-    bit_mode: '1'
-    comment: ''
-    endianess: '1'
+    comment: 'Original:
+
+      Expected TED Gain: 1
+
+      Loop BW: 45m
+
+      Damping Factor: 1'
+    constellation: digital.constellation_bpsk().base()
+    damping: zeta
+    loop_bw: omega_n_norm
+    max_dev: '1.5'
     maxoutbuf: '0'
-    message_length: '38'
     minoutbuf: '0'
-    nsync_symbols: '10'
-    samples_per_symbol: '2'
+    nfilters: '128'
+    osps: '1'
+    pfb_mf_taps: '[]'
+    resamp_type: digital.IR_MMSE_8TAP
+    sps: samp_per_sym
+    ted_gain: ted_gain
+    ted_type: digital.TED_GARDNER
+    type: ff
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 12.0]
+    coordinate: [1008, 196.0]
+    rotation: 0
+    state: enabled
+- name: fir_filter_xxx_0_1_0_0_0
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Matched Filter
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: int((samp_per_sym-1.0)/2.0)+4
+    taps: '[1.0/float(samp_per_sym)]*samp_per_sym'
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 240.0]
+    rotation: 0
+    state: enabled
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import math
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1168, 4.0]
     rotation: 0
     state: true
+- name: io_homecontrol_slicer_0
+  id: io_homecontrol_slicer
+  parameters:
+    affinity: ''
+    alias: ''
+    bingroup: '1'
+    channel: '3'
+    comment: ''
+    hexgroup: '2'
+    hexorder: '0'
+    msglen: '39'
+    msgoffset: '0'
+    showbin: '0'
+    showhex: '1'
+    srate: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [488, 152.0]
+    rotation: 180
+    state: enabled
 - name: qtgui_freq_sink_x_1
   id: qtgui_freq_sink_x
   parameters:
@@ -383,7 +618,7 @@ blocks:
     fftsize: '1024'
     freqhalf: 'True'
     grid: 'False'
-    gui_hint: ''
+    gui_hint: 3,0,1,1
     label: Relative Gain
     label1: ''
     label10: ''''''
@@ -425,10 +660,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 348.0]
+    coordinate: [824, 628.0]
     rotation: 0
     state: enabled
-- name: qtgui_time_sink_x_0
+- name: qtgui_time_sink_x_0_0_0_0_0
   id: qtgui_time_sink_x
   parameters:
     affinity: ''
@@ -459,19 +694,19 @@ blocks:
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'False'
-    gui_hint: ''
-    label1: Signal 1
-    label10: Signal 10
-    label2: Signal 2
-    label3: Signal 3
-    label4: Signal 4
-    label5: Signal 5
-    label6: Signal 6
-    label7: Signal 7
-    label8: Signal 8
-    label9: Signal 9
+    gui_hint: 3,1,1,2
+    label1: Soft Bits
+    label10: ''
+    label2: Error
+    label3: Instantaneous Period
+    label4: Average Period
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
     legend: 'True'
-    marker1: '-1'
+    marker1: '0'
     marker10: '-1'
     marker2: '-1'
     marker3: '-1'
@@ -481,10 +716,10 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '""'
-    nconnections: '3'
-    size: '1024'
-    srate: samp_rate
+    name: Symbol Synced Output and Debug
+    nconnections: '4'
+    size: '256'
+    srate: baud_rate
     stemplot: 'False'
     style1: '1'
     style10: '1'
@@ -497,13 +732,13 @@ blocks:
     style8: '1'
     style9: '1'
     tr_chan: '0'
-    tr_delay: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_AUTO
+    tr_delay: '0.01'
+    tr_level: '0.1'
+    tr_mode: qtgui.TRIG_MODE_NORM
     tr_slope: qtgui.TRIG_SLOPE_POS
-    tr_tag: '""'
+    tr_tag: '"time_est"'
     type: float
-    update_time: '0.10'
+    update_time: '0.1'
     width1: '1'
     width10: '1'
     width2: '1'
@@ -515,16 +750,16 @@ blocks:
     width8: '1'
     width9: '1'
     ylabel: Amplitude
-    ymax: '1'
-    ymin: '-1'
+    ymax: samp_per_sym+2
+    ymin: '-1.5'
     yunit: '""'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 236.0]
+    coordinate: [1352, 36.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: rtlsdr_source_0
   id: rtlsdr_source
   parameters:
@@ -879,30 +1114,40 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 204.0]
+    coordinate: [32, 468.0]
     rotation: 0
     state: disabled
 
 connections:
-- [OOK_demodulator_improved_0, '0', blocks_streams_to_vector_0_0, '0']
-- [OOK_demodulator_improved_0, '0', manchester_decode_0, '0']
-- [OOK_demodulator_improved_0, '0', qtgui_time_sink_x_0, '0']
-- [OOK_demodulator_improved_0, '1', blocks_null_sink_0, '0']
+- [OOK_demodulator_improved_0, '0', blocks_streams_to_vector_0_0_0, '0']
+- [OOK_demodulator_improved_0, '1', blocks_streams_to_vector_0_0, '0']
 - [OOK_demodulator_improved_0, '2', qtgui_freq_sink_x_1, '0']
-- [OOK_demodulator_improved_0_0, '0', blocks_streams_to_vector_0_0, '1']
-- [OOK_demodulator_improved_0_0, '0', qtgui_time_sink_x_0, '1']
-- [OOK_demodulator_improved_0_0, '1', blocks_null_sink_0_0_0, '0']
+- [OOK_demodulator_improved_0_0, '0', blocks_streams_to_vector_0_0_0, '1']
+- [OOK_demodulator_improved_0_0, '0', fir_filter_xxx_0_1_0_0_0, '0']
+- [OOK_demodulator_improved_0_0, '1', blocks_streams_to_vector_0_0, '1']
+- [OOK_demodulator_improved_0_0, '1', io_homecontrol_slicer_0, '0']
 - [OOK_demodulator_improved_0_0, '2', qtgui_freq_sink_x_1, '1']
-- [OOK_demodulator_improved_0_1, '0', blocks_streams_to_vector_0_0, '2']
-- [OOK_demodulator_improved_0_1, '0', qtgui_time_sink_x_0, '2']
-- [OOK_demodulator_improved_0_1, '1', blocks_null_sink_0_0, '0']
+- [OOK_demodulator_improved_0_1, '0', blocks_streams_to_vector_0_0_0, '2']
+- [OOK_demodulator_improved_0_1, '1', blocks_streams_to_vector_0_0, '2']
 - [OOK_demodulator_improved_0_1, '2', qtgui_freq_sink_x_1, '2']
+- [blocks_char_to_float_0, '0', blocks_file_sink_0_0, '0']
 - [blocks_file_source_0, '0', blocks_throttle_0, '0']
-- [blocks_streams_to_vector_0_0, '0', blocks_file_sink_0_0, '0']
+- [blocks_float_to_char_0, '0', blocks_repack_bits_bb_0, '0']
+- [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0, '0']
+- [blocks_streams_to_vector_0_0, '0', blocks_char_to_float_0, '0']
+- [blocks_streams_to_vector_0_0_0, '0', blocks_file_sink_0_0_0_0_1, '0']
+- [blocks_threshold_ff_0, '0', blocks_file_sink_0_0_0_0, '0']
+- [blocks_threshold_ff_0, '0', blocks_float_to_char_0, '0']
 - [blocks_throttle_0, '0', OOK_demodulator_improved_0, '0']
 - [blocks_throttle_0, '0', OOK_demodulator_improved_0_0, '0']
 - [blocks_throttle_0, '0', OOK_demodulator_improved_0_1, '0']
-- [manchester_decode_0, '0', blocks_file_sink_1, '0']
+- [digital_symbol_sync_xx_0_0, '0', blocks_threshold_ff_0, '0']
+- [digital_symbol_sync_xx_0_0, '0', qtgui_time_sink_x_0_0_0_0_0, '0']
+- [digital_symbol_sync_xx_0_0, '1', qtgui_time_sink_x_0_0_0_0_0, '1']
+- [digital_symbol_sync_xx_0_0, '2', qtgui_time_sink_x_0_0_0_0_0, '2']
+- [digital_symbol_sync_xx_0_0, '3', qtgui_time_sink_x_0_0_0_0_0, '3']
+- [fir_filter_xxx_0_1_0_0_0, '0', blocks_file_sink_0_0_0_0_2, '0']
+- [fir_filter_xxx_0_1_0_0_0, '0', digital_symbol_sync_xx_0_0, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0_0, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0_1, '0']

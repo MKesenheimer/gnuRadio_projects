@@ -32,12 +32,16 @@ from gnuradio.filter import firdes
 import sip
 from gnuradio import blocks
 import pmt
+from gnuradio import digital
+from gnuradio import filter
 from gnuradio import gr
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-import manchester_decode
+from gnuradio.qtgui import Range, RangeWidget
+from io_homecontrol_slicer import io_homecontrol_slicer  # grc-generated hier_block
+import math
 
 from gnuradio import qtgui
 
@@ -77,7 +81,11 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
+        self.zeta = zeta = 1.0
+        self.ted_gain = ted_gain = 1
         self.samp_rate = samp_rate = 2.4e6
+        self.samp_per_sym = samp_per_sym = 5
+        self.omega_n_norm = omega_n_norm = 0.045
         self.fmid = fmid = 868.949e6
         self.dfctr3 = dfctr3 = 0
         self.dfctr2 = dfctr2 = -19.2e3
@@ -87,6 +95,78 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
+        self._zeta_range = Range(0.1, 5.0, 0.1, 1.0, 200)
+        self._zeta_win = RangeWidget(self._zeta_range, self.set_zeta, 'Damping Factor', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._zeta_win, 0, 0, 1, 2)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self._ted_gain_range = Range(0.05, 5.0, 0.01, 1, 200)
+        self._ted_gain_win = RangeWidget(self._ted_gain_range, self.set_ted_gain, 'Expected TED Gain', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._ted_gain_win, 2, 0, 1, 2)
+        for r in range(2, 3):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self._omega_n_norm_range = Range(0.0, 2.0*math.pi*0.25, 0.001, 0.045, 200)
+        self._omega_n_norm_win = RangeWidget(self._omega_n_norm_range, self.set_omega_n_norm, 'Normalized Bandwidth', "counter_slider", float)
+        self.top_grid_layout.addWidget(self._omega_n_norm_win, 1, 0, 1, 2)
+        for r in range(1, 2):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_time_sink_x_0_0_0_0_0 = qtgui.time_sink_f(
+            256, #size
+            baud_rate, #samp_rate
+            'Symbol Synced Output and Debug', #name
+            4 #number of inputs
+        )
+        self.qtgui_time_sink_x_0_0_0_0_0.set_update_time(0.1)
+        self.qtgui_time_sink_x_0_0_0_0_0.set_y_axis(-1.5, samp_per_sym+2)
+
+        self.qtgui_time_sink_x_0_0_0_0_0.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_0_0_0_0_0.enable_tags(True)
+        self.qtgui_time_sink_x_0_0_0_0_0.set_trigger_mode(qtgui.TRIG_MODE_NORM, qtgui.TRIG_SLOPE_POS, 0.1, 0.01, 0, "time_est")
+        self.qtgui_time_sink_x_0_0_0_0_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_0_0_0_0_0.enable_grid(False)
+        self.qtgui_time_sink_x_0_0_0_0_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0_0_0_0_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_0_0_0_0_0.enable_stem_plot(False)
+
+
+        labels = ['Soft Bits', 'Error', 'Instantaneous Period', 'Average Period', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [0, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(4):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_0_0_0_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_0_0_0_0_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0_0_0_0_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0_0_0_0_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0_0_0_0_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0_0_0_0_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0_0_0_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_0_0_0_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0_0_0_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_0_0_0_0_win, 3, 1, 1, 2)
+        for r in range(3, 4):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 3):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_1 = qtgui.freq_sink_c(
             1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -126,16 +206,50 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_1.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_1_win = sip.wrapinstance(self.qtgui_freq_sink_x_1.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_1_win)
-        self.manchester_decode_0 = manchester_decode.manchester_decode(2, 38, 10, 1, 1)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_1_win, 3, 0, 1, 1)
+        for r in range(3, 4):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.io_homecontrol_slicer_0 = io_homecontrol_slicer(
+            bingroup=1,
+            channel=3,
+            hexgroup=2,
+            hexorder=0,
+            msglen=39,
+            msgoffset=0,
+            showbin=0,
+            showhex=1,
+            srate=1,
+        )
+        self.fir_filter_xxx_0_1_0_0_0 = filter.fir_filter_fff(1, [1.0/float(samp_per_sym)]*samp_per_sym)
+        self.fir_filter_xxx_0_1_0_0_0.declare_sample_delay(int((samp_per_sym-1.0)/2.0)+4)
+        self.digital_symbol_sync_xx_0_0 = digital.symbol_sync_ff(
+            digital.TED_GARDNER,
+            samp_per_sym,
+            omega_n_norm,
+            zeta,
+            ted_gain,
+            1.5,
+            1,
+            digital.constellation_bpsk().base(),
+            digital.IR_MMSE_8TAP,
+            128,
+            [])
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.blocks_null_sink_0_0_0 = blocks.null_sink(gr.sizeof_char*1)
-        self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_char*1)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
+        self.blocks_threshold_ff_0 = blocks.threshold_ff(-0.2, 0.2, 0)
+        self.blocks_streams_to_vector_0_0 = blocks.streams_to_vector(gr.sizeof_char*1, 3)
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
+        self.blocks_float_to_char_0 = blocks.float_to_char(1, 1)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/io-home/somfy_868.949MHz_2.4Mss.complex', False, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
-        self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_char*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/stdout', False)
-        self.blocks_file_sink_1.set_unbuffered(True)
+        self.blocks_file_sink_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/out.bin', False)
+        self.blocks_file_sink_0_0_0_0_0.set_unbuffered(True)
+        self.blocks_file_sink_0_0_0_0 = blocks.file_sink(gr.sizeof_float*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_clock_recovery.raw', False)
+        self.blocks_file_sink_0_0_0_0.set_unbuffered(True)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_float*3, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_sliced.raw', False)
+        self.blocks_file_sink_0_0.set_unbuffered(False)
+        self.blocks_char_to_float_0 = blocks.char_to_float(3, 1)
         self.OOK_demodulator_improved_0_1 = OOK_demodulator_improved(
             fbaud=baud_rate,
             freq=dfctr2,
@@ -146,7 +260,7 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.OOK_demodulator_improved_0_0 = OOK_demodulator_improved(
             fbaud=baud_rate,
             freq=dfctr3,
-            offset=0,
+            offset=-0.01,
             re_samp_rate=96000,
             samp_rate=samp_rate,
         )
@@ -163,24 +277,50 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.OOK_demodulator_improved_0, 1), (self.blocks_null_sink_0, 0))
-        self.connect((self.OOK_demodulator_improved_0, 0), (self.manchester_decode_0, 0))
+        self.connect((self.OOK_demodulator_improved_0, 1), (self.blocks_streams_to_vector_0_0, 0))
         self.connect((self.OOK_demodulator_improved_0, 2), (self.qtgui_freq_sink_x_1, 0))
-        self.connect((self.OOK_demodulator_improved_0_0, 1), (self.blocks_null_sink_0_0_0, 0))
+        self.connect((self.OOK_demodulator_improved_0_0, 1), (self.blocks_streams_to_vector_0_0, 1))
+        self.connect((self.OOK_demodulator_improved_0_0, 0), (self.fir_filter_xxx_0_1_0_0_0, 0))
+        self.connect((self.OOK_demodulator_improved_0_0, 1), (self.io_homecontrol_slicer_0, 0))
         self.connect((self.OOK_demodulator_improved_0_0, 2), (self.qtgui_freq_sink_x_1, 1))
-        self.connect((self.OOK_demodulator_improved_0_1, 1), (self.blocks_null_sink_0_0, 0))
+        self.connect((self.OOK_demodulator_improved_0_1, 1), (self.blocks_streams_to_vector_0_0, 2))
         self.connect((self.OOK_demodulator_improved_0_1, 2), (self.qtgui_freq_sink_x_1, 2))
+        self.connect((self.blocks_char_to_float_0, 0), (self.blocks_file_sink_0_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.blocks_float_to_char_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0_0_0_0_0, 0))
+        self.connect((self.blocks_streams_to_vector_0_0, 0), (self.blocks_char_to_float_0, 0))
+        self.connect((self.blocks_threshold_ff_0, 0), (self.blocks_file_sink_0_0_0_0, 0))
+        self.connect((self.blocks_threshold_ff_0, 0), (self.blocks_float_to_char_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_1, 0))
-        self.connect((self.manchester_decode_0, 0), (self.blocks_file_sink_1, 0))
+        self.connect((self.digital_symbol_sync_xx_0_0, 0), (self.blocks_threshold_ff_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0_0, 1), (self.qtgui_time_sink_x_0_0_0_0_0, 1))
+        self.connect((self.digital_symbol_sync_xx_0_0, 2), (self.qtgui_time_sink_x_0_0_0_0_0, 2))
+        self.connect((self.digital_symbol_sync_xx_0_0, 3), (self.qtgui_time_sink_x_0_0_0_0_0, 3))
+        self.connect((self.fir_filter_xxx_0_1_0_0_0, 0), (self.digital_symbol_sync_xx_0_0, 0))
 
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "somfy_receiver")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
+
+    def get_zeta(self):
+        return self.zeta
+
+    def set_zeta(self, zeta):
+        self.zeta = zeta
+        self.digital_symbol_sync_xx_0_0.set_damping_factor(self.zeta)
+
+    def get_ted_gain(self):
+        return self.ted_gain
+
+    def set_ted_gain(self, ted_gain):
+        self.ted_gain = ted_gain
+        self.digital_symbol_sync_xx_0_0.set_ted_gain(self.ted_gain)
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -192,6 +332,21 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.OOK_demodulator_improved_0_1.set_samp_rate(self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.qtgui_freq_sink_x_1.set_frequency_range(0, self.samp_rate)
+
+    def get_samp_per_sym(self):
+        return self.samp_per_sym
+
+    def set_samp_per_sym(self, samp_per_sym):
+        self.samp_per_sym = samp_per_sym
+        self.fir_filter_xxx_0_1_0_0_0.set_taps([1.0/float(self.samp_per_sym)]*self.samp_per_sym)
+        self.qtgui_time_sink_x_0_0_0_0_0.set_y_axis(-1.5, self.samp_per_sym+2)
+
+    def get_omega_n_norm(self):
+        return self.omega_n_norm
+
+    def set_omega_n_norm(self, omega_n_norm):
+        self.omega_n_norm = omega_n_norm
+        self.digital_symbol_sync_xx_0_0.set_loop_bandwidth(self.omega_n_norm)
 
     def get_fmid(self):
         return self.fmid
@@ -228,6 +383,7 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.OOK_demodulator_improved_0.set_fbaud(self.baud_rate)
         self.OOK_demodulator_improved_0_0.set_fbaud(self.baud_rate)
         self.OOK_demodulator_improved_0_1.set_fbaud(self.baud_rate)
+        self.qtgui_time_sink_x_0_0_0_0_0.set_samp_rate(self.baud_rate)
 
 
 
