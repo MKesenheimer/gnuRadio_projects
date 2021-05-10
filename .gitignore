@@ -6,4 +6,6 @@
 *.dat
 *.npy
 *.raw
+*.aup
+*.au
 __pycache__

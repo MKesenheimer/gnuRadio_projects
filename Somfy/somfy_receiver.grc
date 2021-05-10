@@ -325,9 +325,27 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1928, 208.0]
+    coordinate: [2096, 176.0]
     rotation: 0
     state: enabled
+- name: blocks_file_sink_0_0_0_0_0_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/stdout
+    type: byte
+    unbuffered: 'True'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2096, 280.0]
+    rotation: 0
+    state: disabled
 - name: blocks_file_sink_0_0_0_0_1
   id: blocks_file_sink
   parameters:
@@ -420,7 +438,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1736, 216.0]
+    coordinate: [1904, 216.0]
     rotation: 0
     state: enabled
 - name: blocks_streams_to_vector_0_0
@@ -529,6 +547,24 @@ blocks:
     coordinate: [1008, 196.0]
     rotation: 0
     state: enabled
+- name: extract_payload_0
+  id: extract_payload
+  parameters:
+    affinity: ''
+    alias: ''
+    bitpattern: (1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1)
+    comment: ''
+    headerLength: 40*8
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    payloadLength: 40*8
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1712, 208.0]
+    rotation: 0
+    state: enabled
 - name: fir_filter_xxx_0_1_0_0_0
   id: fir_filter_xxx
   parameters:
@@ -561,28 +597,6 @@ blocks:
     coordinate: [1168, 4.0]
     rotation: 0
     state: true
-- name: io_homecontrol_slicer_0
-  id: io_homecontrol_slicer
-  parameters:
-    affinity: ''
-    alias: ''
-    bingroup: '1'
-    channel: '3'
-    comment: ''
-    hexgroup: '2'
-    hexorder: '0'
-    msglen: '39'
-    msgoffset: '0'
-    showbin: '0'
-    showhex: '1'
-    srate: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [488, 152.0]
-    rotation: 180
-    state: enabled
 - name: qtgui_freq_sink_x_1
   id: qtgui_freq_sink_x
   parameters:
@@ -1125,15 +1139,15 @@ connections:
 - [OOK_demodulator_improved_0_0, '0', blocks_streams_to_vector_0_0_0, '1']
 - [OOK_demodulator_improved_0_0, '0', fir_filter_xxx_0_1_0_0_0, '0']
 - [OOK_demodulator_improved_0_0, '1', blocks_streams_to_vector_0_0, '1']
-- [OOK_demodulator_improved_0_0, '1', io_homecontrol_slicer_0, '0']
 - [OOK_demodulator_improved_0_0, '2', qtgui_freq_sink_x_1, '1']
 - [OOK_demodulator_improved_0_1, '0', blocks_streams_to_vector_0_0_0, '2']
 - [OOK_demodulator_improved_0_1, '1', blocks_streams_to_vector_0_0, '2']
 - [OOK_demodulator_improved_0_1, '2', qtgui_freq_sink_x_1, '2']
 - [blocks_char_to_float_0, '0', blocks_file_sink_0_0, '0']
 - [blocks_file_source_0, '0', blocks_throttle_0, '0']
-- [blocks_float_to_char_0, '0', blocks_repack_bits_bb_0, '0']
+- [blocks_float_to_char_0, '0', extract_payload_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0, '0']
+- [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0_0, '0']
 - [blocks_streams_to_vector_0_0, '0', blocks_char_to_float_0, '0']
 - [blocks_streams_to_vector_0_0_0, '0', blocks_file_sink_0_0_0_0_1, '0']
 - [blocks_threshold_ff_0, '0', blocks_file_sink_0_0_0_0, '0']
@@ -1146,6 +1160,7 @@ connections:
 - [digital_symbol_sync_xx_0_0, '1', qtgui_time_sink_x_0_0_0_0_0, '1']
 - [digital_symbol_sync_xx_0_0, '2', qtgui_time_sink_x_0_0_0_0_0, '2']
 - [digital_symbol_sync_xx_0_0, '3', qtgui_time_sink_x_0_0_0_0_0, '3']
+- [extract_payload_0, '0', blocks_repack_bits_bb_0, '0']
 - [fir_filter_xxx_0_1_0_0_0, '0', blocks_file_sink_0_0_0_0_2, '0']
 - [fir_filter_xxx_0_1_0_0_0, '0', digital_symbol_sync_xx_0_0, '0']
 - [rtlsdr_source_0, '0', OOK_demodulator_improved_0, '0']

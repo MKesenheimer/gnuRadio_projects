@@ -40,7 +40,7 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio.qtgui import Range, RangeWidget
-from io_homecontrol_slicer import io_homecontrol_slicer  # grc-generated hier_block
+import extract_payload
 import math
 
 from gnuradio import qtgui
@@ -211,19 +211,9 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.io_homecontrol_slicer_0 = io_homecontrol_slicer(
-            bingroup=1,
-            channel=3,
-            hexgroup=2,
-            hexorder=0,
-            msglen=39,
-            msgoffset=0,
-            showbin=0,
-            showhex=1,
-            srate=1,
-        )
         self.fir_filter_xxx_0_1_0_0_0 = filter.fir_filter_fff(1, [1.0/float(samp_per_sym)]*samp_per_sym)
         self.fir_filter_xxx_0_1_0_0_0.declare_sample_delay(int((samp_per_sym-1.0)/2.0)+4)
+        self.extract_payload_0 = extract_payload.extract_payload((1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1), 40*8, 40*8)
         self.digital_symbol_sync_xx_0_0 = digital.symbol_sync_ff(
             digital.TED_GARDNER,
             samp_per_sym,
@@ -281,13 +271,12 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.connect((self.OOK_demodulator_improved_0, 2), (self.qtgui_freq_sink_x_1, 0))
         self.connect((self.OOK_demodulator_improved_0_0, 1), (self.blocks_streams_to_vector_0_0, 1))
         self.connect((self.OOK_demodulator_improved_0_0, 0), (self.fir_filter_xxx_0_1_0_0_0, 0))
-        self.connect((self.OOK_demodulator_improved_0_0, 1), (self.io_homecontrol_slicer_0, 0))
         self.connect((self.OOK_demodulator_improved_0_0, 2), (self.qtgui_freq_sink_x_1, 1))
         self.connect((self.OOK_demodulator_improved_0_1, 1), (self.blocks_streams_to_vector_0_0, 2))
         self.connect((self.OOK_demodulator_improved_0_1, 2), (self.qtgui_freq_sink_x_1, 2))
         self.connect((self.blocks_char_to_float_0, 0), (self.blocks_file_sink_0_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle_0, 0))
-        self.connect((self.blocks_float_to_char_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_float_to_char_0, 0), (self.extract_payload_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0_0_0_0_0, 0))
         self.connect((self.blocks_streams_to_vector_0_0, 0), (self.blocks_char_to_float_0, 0))
         self.connect((self.blocks_threshold_ff_0, 0), (self.blocks_file_sink_0_0_0_0, 0))
@@ -297,9 +286,10 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_1, 0))
         self.connect((self.digital_symbol_sync_xx_0_0, 0), (self.blocks_threshold_ff_0, 0))
         self.connect((self.digital_symbol_sync_xx_0_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0_0, 1), (self.qtgui_time_sink_x_0_0_0_0_0, 1))
         self.connect((self.digital_symbol_sync_xx_0_0, 2), (self.qtgui_time_sink_x_0_0_0_0_0, 2))
+        self.connect((self.digital_symbol_sync_xx_0_0, 1), (self.qtgui_time_sink_x_0_0_0_0_0, 1))
         self.connect((self.digital_symbol_sync_xx_0_0, 3), (self.qtgui_time_sink_x_0_0_0_0_0, 3))
+        self.connect((self.extract_payload_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.fir_filter_xxx_0_1_0_0_0, 0), (self.digital_symbol_sync_xx_0_0, 0))
 
 
