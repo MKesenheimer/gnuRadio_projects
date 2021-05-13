@@ -1,5 +1,7 @@
 #!/bin/bash
 # convert binary representation to hex
+# i.e. ./bintohex.sh 1111 -> f
+
 function b2h {
   printf '%x\n' "$((2#$1))"
 }

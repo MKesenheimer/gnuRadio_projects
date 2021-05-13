@@ -1,0 +1,8 @@
+* Reihenfolge:
+- 1 up
+- 1 down
+- 2 up 
+- 2 down
+...
+- all up
+- all down
