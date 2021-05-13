@@ -403,7 +403,7 @@ blocks:
     bus_structure: null
     coordinate: [32, 652.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: blocks_float_to_char_0
   id: blocks_float_to_char
   parameters:
@@ -513,7 +513,7 @@ blocks:
     bus_structure: null
     coordinate: [240, 676.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: digital_symbol_sync_xx_0_0
   id: digital_symbol_sync_xx
   parameters:
@@ -1130,7 +1130,7 @@ blocks:
     bus_structure: null
     coordinate: [32, 468.0]
     rotation: 0
-    state: disabled
+    state: enabled
 
 connections:
 - [OOK_demodulator_improved_0, '0', blocks_streams_to_vector_0_0_0, '0']
