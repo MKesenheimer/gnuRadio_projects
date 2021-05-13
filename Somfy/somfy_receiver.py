@@ -31,7 +31,6 @@ from gnuradio import qtgui
 from gnuradio.filter import firdes
 import sip
 from gnuradio import blocks
-import pmt
 from gnuradio import digital
 from gnuradio import filter
 from gnuradio import gr
@@ -42,21 +41,14 @@ from gnuradio import eng_notation
 from gnuradio.qtgui import Range, RangeWidget
 import extract_payload
 import math
+import osmosdr
+import time
 
 from gnuradio import qtgui
 
 class somfy_receiver(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        parser = ArgumentParser()
-        parser.add_argument("-i", "--ifile", dest="ifilename",
-                    help="read from FILE", metavar="FILE", required=True)
-        parser.add_argument("-o", "--ofile", dest="ofilename",
-                    help="write to FILE", metavar="FILE", required=True)
-        args = parser.parse_args()
-        print("Reading from file {}".format(args.ifilename))
-        print("Writing to file {}".format(args.ofilename))
-
         gr.top_block.__init__(self, "Not titled yet")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Not titled yet")
@@ -95,8 +87,8 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate = 2.4e6
         self.samp_per_sym = samp_per_sym = 5
         self.omega_n_norm = omega_n_norm = 0.045
-        self.ofile = ofile = args.ofilename
-        self.ifile = ifile = args.ifilename
+        self.ofile = ofile = "/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/payloads/out"
+        self.ifile = ifile = "/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/records/somfy_868.949MHz_2.4Mss.complex"
         self.fmid = fmid = 868.949e6
         self.dfctr3 = dfctr3 = 0
         self.dfctr2 = dfctr2 = -19.2e3
@@ -127,6 +119,21 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
+        self.rtlsdr_source_0 = osmosdr.source(
+            args="numchan=" + str(1) + " " + ''
+        )
+        self.rtlsdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.rtlsdr_source_0.set_sample_rate(samp_rate)
+        self.rtlsdr_source_0.set_center_freq(fmid, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
+        self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
+        self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
+        self.rtlsdr_source_0.set_gain_mode(True, 0)
+        self.rtlsdr_source_0.set_gain(10, 0)
+        self.rtlsdr_source_0.set_if_gain(20, 0)
+        self.rtlsdr_source_0.set_bb_gain(20, 0)
+        self.rtlsdr_source_0.set_antenna('', 0)
+        self.rtlsdr_source_0.set_bandwidth(0, 0)
         self.qtgui_time_sink_x_0_0_0_0_0 = qtgui.time_sink_f(
             256, #size
             baud_rate, #samp_rate
@@ -267,28 +274,21 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
             digital.IR_MMSE_8TAP,
             128,
             [])
-        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_threshold_ff_0_0_0 = blocks.threshold_ff(-0.2, 0.2, 0)
         self.blocks_threshold_ff_0_0 = blocks.threshold_ff(-0.2, 0.2, 0)
         self.blocks_threshold_ff_0 = blocks.threshold_ff(-0.2, 0.2, 0)
-        self.blocks_streams_to_vector_0_0 = blocks.streams_to_vector(gr.sizeof_char*1, 3)
         self.blocks_repack_bits_bb_0_0_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_float_to_char_0_0_0 = blocks.float_to_char(1, 1)
         self.blocks_float_to_char_0_0 = blocks.float_to_char(1, 1)
         self.blocks_float_to_char_0 = blocks.float_to_char(1, 1)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, ifile, False, 0, 0)
-        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_sink_0_0_0_0_0_1_0 = blocks.file_sink(gr.sizeof_char*1, ofile+"_chn2.bin", False)
         self.blocks_file_sink_0_0_0_0_0_1_0.set_unbuffered(True)
         self.blocks_file_sink_0_0_0_0_0_1 = blocks.file_sink(gr.sizeof_char*1, ofile+"_chn3.bin", False)
         self.blocks_file_sink_0_0_0_0_0_1.set_unbuffered(True)
         self.blocks_file_sink_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, ofile+"_chn1.bin", False)
         self.blocks_file_sink_0_0_0_0_0.set_unbuffered(True)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_float*3, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/Somfy/io_homecontrol_96k_sliced.raw', False)
-        self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_char_to_float_0 = blocks.char_to_float(3, 1)
         self.OOK_demodulator_improved_0_1 = OOK_demodulator_improved(
             fbaud=baud_rate,
             freq=dfctr2,
@@ -316,34 +316,25 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.OOK_demodulator_improved_0, 1), (self.blocks_streams_to_vector_0_0, 0))
         self.connect((self.OOK_demodulator_improved_0, 0), (self.fir_filter_xxx_0_1_0_0_0, 0))
         self.connect((self.OOK_demodulator_improved_0, 2), (self.qtgui_freq_sink_x_1, 0))
-        self.connect((self.OOK_demodulator_improved_0_0, 1), (self.blocks_streams_to_vector_0_0, 1))
         self.connect((self.OOK_demodulator_improved_0_0, 0), (self.fir_filter_xxx_0_1_0_0_0_0, 0))
         self.connect((self.OOK_demodulator_improved_0_0, 2), (self.qtgui_freq_sink_x_1, 1))
-        self.connect((self.OOK_demodulator_improved_0_1, 1), (self.blocks_streams_to_vector_0_0, 2))
         self.connect((self.OOK_demodulator_improved_0_1, 0), (self.fir_filter_xxx_0_1_0_0_0_0_0, 0))
         self.connect((self.OOK_demodulator_improved_0_1, 2), (self.qtgui_freq_sink_x_1, 2))
-        self.connect((self.blocks_char_to_float_0, 0), (self.blocks_file_sink_0_0, 0))
-        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle_0, 0))
         self.connect((self.blocks_float_to_char_0, 0), (self.extract_payload_0, 0))
         self.connect((self.blocks_float_to_char_0_0, 0), (self.extract_payload_0_0, 0))
         self.connect((self.blocks_float_to_char_0_0_0, 0), (self.extract_payload_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_0, 0), (self.blocks_file_sink_0_0_0_0_0_1, 0))
         self.connect((self.blocks_repack_bits_bb_0_0_0, 0), (self.blocks_file_sink_0_0_0_0_0_1_0, 0))
-        self.connect((self.blocks_streams_to_vector_0_0, 0), (self.blocks_char_to_float_0, 0))
         self.connect((self.blocks_threshold_ff_0, 0), (self.blocks_float_to_char_0, 0))
         self.connect((self.blocks_threshold_ff_0_0, 0), (self.blocks_float_to_char_0_0, 0))
         self.connect((self.blocks_threshold_ff_0_0_0, 0), (self.blocks_float_to_char_0_0_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.OOK_demodulator_improved_0_1, 0))
         self.connect((self.digital_symbol_sync_xx_0_0, 0), (self.blocks_threshold_ff_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0_0, 1), (self.qtgui_time_sink_x_0_0_0_0_0, 1))
         self.connect((self.digital_symbol_sync_xx_0_0, 2), (self.qtgui_time_sink_x_0_0_0_0_0, 2))
         self.connect((self.digital_symbol_sync_xx_0_0, 0), (self.qtgui_time_sink_x_0_0_0_0_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0_0, 1), (self.qtgui_time_sink_x_0_0_0_0_0, 1))
         self.connect((self.digital_symbol_sync_xx_0_0, 3), (self.qtgui_time_sink_x_0_0_0_0_0, 3))
         self.connect((self.digital_symbol_sync_xx_0_0_0, 0), (self.blocks_threshold_ff_0_0, 0))
         self.connect((self.digital_symbol_sync_xx_0_0_0_0, 0), (self.blocks_threshold_ff_0_0_0, 0))
@@ -353,6 +344,9 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.connect((self.fir_filter_xxx_0_1_0_0_0, 0), (self.digital_symbol_sync_xx_0_0, 0))
         self.connect((self.fir_filter_xxx_0_1_0_0_0_0, 0), (self.digital_symbol_sync_xx_0_0_0, 0))
         self.connect((self.fir_filter_xxx_0_1_0_0_0_0_0, 0), (self.digital_symbol_sync_xx_0_0_0_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.OOK_demodulator_improved_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.OOK_demodulator_improved_0_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.OOK_demodulator_improved_0_1, 0))
 
 
     def closeEvent(self, event):
@@ -386,8 +380,8 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
         self.OOK_demodulator_improved_0.set_samp_rate(self.samp_rate)
         self.OOK_demodulator_improved_0_0.set_samp_rate(self.samp_rate)
         self.OOK_demodulator_improved_0_1.set_samp_rate(self.samp_rate)
-        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.qtgui_freq_sink_x_1.set_frequency_range(0, self.samp_rate)
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
     def get_samp_per_sym(self):
         return self.samp_per_sym
@@ -422,13 +416,13 @@ class somfy_receiver(gr.top_block, Qt.QWidget):
 
     def set_ifile(self, ifile):
         self.ifile = ifile
-        self.blocks_file_source_0.open(self.ifile, False)
 
     def get_fmid(self):
         return self.fmid
 
     def set_fmid(self, fmid):
         self.fmid = fmid
+        self.rtlsdr_source_0.set_center_freq(self.fmid, 0)
 
     def get_dfctr3(self):
         return self.dfctr3
