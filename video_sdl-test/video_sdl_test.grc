@@ -1,6 +1,7 @@
 options:
   parameters:
     author: kesenheimer
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -8,7 +9,7 @@ options:
     description: ''
     gen_cmake: 'On'
     gen_linking: dynamic
-    generate_options: no_gui
+    generate_options: qt_gui
     hier_block_src_path: '.:'
     id: video_sdl_test
     max_nouts: '0'
@@ -77,6 +78,7 @@ blocks:
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
+    showports: 'False'
     type: float
     waveform: analog.GR_SAW_WAVE
   states:
@@ -99,6 +101,7 @@ blocks:
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
+    showports: 'False'
     type: short
     waveform: analog.GR_COS_WAVE
   states:
@@ -121,6 +124,7 @@ blocks:
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
+    showports: 'False'
     type: short
     waveform: analog.GR_TRI_WAVE
   states:
@@ -163,7 +167,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [403, 219]
+    coordinate: [400, 244.0]
     rotation: 0
     state: true
 - name: blocks_file_descriptor_sink_0
@@ -251,6 +255,27 @@ blocks:
     coordinate: [543, 431]
     rotation: 0
     state: disabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: short
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [536, 256.0]
+    rotation: 0
+    state: true
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -270,25 +295,6 @@ blocks:
     coordinate: [673, 349]
     rotation: 0
     state: disabled
-- name: blocks_throttle_1
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: short
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [542, 217]
-    rotation: 0
-    state: enabled
 - name: blocks_udp_sink_0
   id: blocks_udp_sink
   parameters:
@@ -441,7 +447,7 @@ blocks:
     showports: 'False'
     showrf: 'False'
     type: float
-    wintype: firdes.WIN_BLACKMAN_hARRIS
+    wintype: window.WIN_BLACKMAN_hARRIS
   states:
     bus_sink: false
     bus_source: false
@@ -466,28 +472,29 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [707, 243]
+    coordinate: [704, 240.0]
     rotation: 0
     state: enabled
 
 connections:
 - [analog_random_source_x_0, '0', blocks_short_to_float_0, '0']
-- [analog_random_source_x_0, '0', blocks_throttle_1, '0']
+- [analog_random_source_x_0, '0', blocks_throttle2_0, '0']
 - [analog_sig_source_x_0, '0', blocks_float_to_complex_0, '1']
 - [analog_sig_source_x_1, '0', blocks_add_xx_0, '0']
 - [analog_sig_source_x_2, '0', blocks_add_xx_0, '1']
 - [blocks_add_const_vxx_0, '0', blocks_udp_sink_0, '0']
-- [blocks_add_xx_0, '0', blocks_throttle_1, '0']
+- [blocks_add_xx_0, '0', blocks_throttle2_0, '0']
 - [blocks_float_to_complex_0, '0', qtgui_const_sink_x_0, '0']
 - [blocks_short_to_float_0, '0', blocks_float_to_complex_0, '0']
 - [blocks_short_to_float_0, '0', qtgui_sink_x_0, '0']
+- [blocks_throttle2_0, '0', blocks_file_descriptor_sink_0, '0']
+- [blocks_throttle2_0, '0', blocks_file_sink_0, '0']
+- [blocks_throttle2_0, '0', video_sdl_sink_0, '0']
 - [blocks_throttle_0, '0', blocks_add_const_vxx_0, '0']
 - [blocks_throttle_0, '0', blocks_file_sink_1, '0']
 - [blocks_throttle_0, '0', blocks_udp_sink_0, '0']
-- [blocks_throttle_1, '0', blocks_file_descriptor_sink_0, '0']
-- [blocks_throttle_1, '0', blocks_file_sink_0, '0']
-- [blocks_throttle_1, '0', video_sdl_sink_0, '0']
 - [blocks_vector_source_x_0, '0', blocks_throttle_0, '0']
 
 metadata:
   file_format: 1
+  grc_version: 3.10.8.0

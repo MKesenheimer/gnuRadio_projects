@@ -2,30 +2,48 @@
 #
 # Title: Not titled yet
 # Author: kesenheimer
-# GNU Radio version: 3.8.2.0
+# GNU Radio version: 3.10.8.0
 
 
 cmake_minimum_required(VERSION 3.8)
+set(CMAKE_CXX_STANDARD 14)
 
+project(video_sdl_test)
 
-include_directories(
-    ${GNURADIO_ALL_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    $ENV{HOME}/.grc_gnuradio
+find_package(Gnuradio "3.10" COMPONENTS
+    blocks
+    fec
+    fft
+    filter
+    analog
+    digital
+    dtv
+    audio
+    channels
+    pdu
+    iio
+    qtgui
+    trellis
+    uhd
+    uhd UHD 4.0 RFNoC
+    video-sdl
+    vocoder
+    wavelet
+    zeromq
+    network
+    soapy
 )
 
+find_package(Qt5Widgets REQUIRED)
+set(CMAKE_AUTOMOC TRUE)
 
 
-
-set(GR_LIBRARIES
-    boost_system
-    gnuradio-blocks
-    gnuradio-runtime
-    gnuradio-pmt
-    log4cpp
-    gnuradio-video_sdl
-    gnuradio-analog
-)
 
 add_executable(video_sdl_test video_sdl_test.cpp)
-target_link_libraries(video_sdl_test ${GR_LIBRARIES})
+target_link_libraries(video_sdl_test
+    gnuradio::gnuradio-blocks
+    gnuradio::gnuradio-qtgui
+    gnuradio::gnuradio-video_sdl
+    gnuradio::gnuradio-analog
+)
+

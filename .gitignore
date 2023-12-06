@@ -9,3 +9,6 @@
 *.aup
 *.au
 __pycache__
+codes.txt
+stdout
+build

@@ -1,6 +1,7 @@
 options:
   parameters:
     author: kesenheimer
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -123,7 +124,7 @@ blocks:
     gui_hint: 1,0,1,2
     label: Normalized Bandwidth
     min_len: '200'
-    orient: Qt.Horizontal
+    orient: QtCore.Qt.Horizontal
     rangeType: float
     start: '0.0'
     step: '0.001'
@@ -168,7 +169,7 @@ blocks:
     gui_hint: 2,0,1,2
     label: Expected TED Gain
     min_len: '200'
-    orient: Qt.Horizontal
+    orient: QtCore.Qt.Horizontal
     rangeType: float
     start: '0.05'
     step: '0.01'
@@ -189,7 +190,7 @@ blocks:
     gui_hint: 0,0,1,2
     label: Damping Factor
     min_len: '200'
-    orient: Qt.Horizontal
+    orient: QtCore.Qt.Horizontal
     rangeType: float
     start: '0.1'
     step: '0.1'
@@ -941,6 +942,7 @@ blocks:
     minoutbuf: '0'
     name: '""'
     nconnections: '3'
+    norm_window: 'False'
     showports: 'False'
     tr_chan: '0'
     tr_level: '0.0'
@@ -959,7 +961,7 @@ blocks:
     width7: '1'
     width8: '1'
     width9: '1'
-    wintype: firdes.WIN_BLACKMAN_hARRIS
+    wintype: window.WIN_BLACKMAN_hARRIS
     ymax: '10'
     ymin: '-140'
   states:
@@ -1475,3 +1477,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: 3.10.8.0
