@@ -12,7 +12,6 @@
 from PyQt5 import Qt
 from gnuradio import qtgui
 from gnuradio import blocks
-from gnuradio import blocks, gr
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -23,13 +22,16 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+from gnuradio import gr, pdu
 from gnuradio import network
+from xmlrpc.server import SimpleXMLRPCServer
+import threading
 import math
 import sip
 
 
 
-class ford_tx(gr.top_block, Qt.QWidget):
+class ford_tx_freq(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
@@ -52,7 +54,7 @@ class ford_tx(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "ford_tx")
+        self.settings = Qt.QSettings("GNU Radio", "ford_tx_freq")
 
         try:
             geometry = self.settings.value("geometry")
@@ -67,8 +69,7 @@ class ford_tx(gr.top_block, Qt.QWidget):
         self.freq_spread = freq_spread = 20000
         self.sensitivity = sensitivity = 2 * math.pi * freq_spread
         self.samp_rate = samp_rate = 1000000
-        self.freq_offset_chan1 = freq_offset_chan1 = 330000
-        self.freq_offset_chan0 = freq_offset_chan0 = -330000
+        self.freq_offset = freq_offset = -330000
         self.freq = freq = 433930000
         self.bits_per_second = bits_per_second = 4166
 
@@ -76,6 +77,11 @@ class ford_tx(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
+        self.xmlrpc_server_0 = SimpleXMLRPCServer(('localhost', 8080), allow_none=True)
+        self.xmlrpc_server_0.register_instance(self)
+        self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
+        self.xmlrpc_server_0_thread.daemon = True
+        self.xmlrpc_server_0_thread.start()
         self.qtgui_waterfall_sink_x_1 = qtgui.waterfall_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -153,25 +159,24 @@ class ford_tx(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.network_tcp_source_0 = network.tcp_source.tcp_source(itemsize=gr.sizeof_char*1,addr='127.0.0.1',port=2000,server=True)
-        self.network_socket_pdu_0_0 = network.socket_pdu('TCP_SERVER', '127.0.0.1', '2001', 100, True)
-        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_fcc(1, firdes.complex_band_pass(1, samp_rate, freq_offset_chan0 - freq_spread*4, freq_offset_chan0 + freq_spread*4, freq_spread*2), 0, samp_rate)
+        self.pdu_pdu_to_tagged_stream_0 = pdu.pdu_to_tagged_stream(gr.types.byte_t, 'packet_len')
+        self.network_socket_pdu_0 = network.socket_pdu('TCP_SERVER', '127.0.0.1', '2000', 100, True)
+        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_fcc(1, firdes.complex_band_pass(1, samp_rate, freq_offset - freq_spread/2, freq_offset + freq_spread/2, freq_spread), 0, samp_rate)
         self.blocks_vco_f_0 = blocks.vco_f(samp_rate, sensitivity, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(8)
         self.blocks_uchar_to_float_0 = blocks.uchar_to_float()
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_char*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
         self.blocks_repeat_0 = blocks.repeat(gr.sizeof_char*1, (int(samp_rate/bits_per_second)))
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff((2 * math.pi * freq_spread/sensitivity))
-        self.blocks_msgpair_to_var_0 = blocks.msg_pair_to_var(self.set_freq_offset)
-        self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
-        self.blocks_add_const_vxx_0 = blocks.add_const_ff((2 * math.pi * (freq_offset_chan0 - freq_spread / 2)/sensitivity))
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'Simulation_Ford_433.93MHz_1Msps.raw', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
+        self.blocks_add_const_vxx_0 = blocks.add_const_ff((2 * math.pi * (freq_offset - freq_spread / 2)/sensitivity))
 
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.network_socket_pdu_0_0, 'pdus'), (self.blocks_message_debug_0, 'log'))
-        self.msg_connect((self.network_socket_pdu_0_0, 'pdus'), (self.blocks_msgpair_to_var_0, 'inpair'))
+        self.msg_connect((self.network_socket_pdu_0, 'pdus'), (self.pdu_pdu_to_tagged_stream_0, 'pdus'))
         self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_vco_f_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_repeat_0, 0), (self.blocks_throttle2_0, 0))
@@ -179,13 +184,14 @@ class ford_tx(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_uchar_to_float_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_repeat_0, 0))
         self.connect((self.blocks_vco_f_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_waterfall_sink_x_1, 0))
-        self.connect((self.network_tcp_source_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
+        self.connect((self.pdu_pdu_to_tagged_stream_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "ford_tx")
+        self.settings = Qt.QSettings("GNU Radio", "ford_tx_freq")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -198,16 +204,16 @@ class ford_tx(gr.top_block, Qt.QWidget):
     def set_freq_spread(self, freq_spread):
         self.freq_spread = freq_spread
         self.set_sensitivity(2 * math.pi * self.freq_spread)
-        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset_chan0 - self.freq_spread / 2)/self.sensitivity))
+        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset - self.freq_spread / 2)/self.sensitivity))
         self.blocks_multiply_const_vxx_0.set_k((2 * math.pi * self.freq_spread/self.sensitivity))
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset_chan0 - self.freq_spread*4, self.freq_offset_chan0 + self.freq_spread*4, self.freq_spread*2))
+        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset - self.freq_spread/2, self.freq_offset + self.freq_spread/2, self.freq_spread))
 
     def get_sensitivity(self):
         return self.sensitivity
 
     def set_sensitivity(self, sensitivity):
         self.sensitivity = sensitivity
-        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset_chan0 - self.freq_spread / 2)/self.sensitivity))
+        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset - self.freq_spread / 2)/self.sensitivity))
         self.blocks_multiply_const_vxx_0.set_k((2 * math.pi * self.freq_spread/self.sensitivity))
 
     def get_samp_rate(self):
@@ -217,23 +223,17 @@ class ford_tx(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.blocks_repeat_0.set_interpolation((int(self.samp_rate/self.bits_per_second)))
         self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset_chan0 - self.freq_spread*4, self.freq_offset_chan0 + self.freq_spread*4, self.freq_spread*2))
+        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset - self.freq_spread/2, self.freq_offset + self.freq_spread/2, self.freq_spread))
         self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
         self.qtgui_waterfall_sink_x_1.set_frequency_range(self.freq, self.samp_rate)
 
-    def get_freq_offset_chan1(self):
-        return self.freq_offset_chan1
+    def get_freq_offset(self):
+        return self.freq_offset
 
-    def set_freq_offset_chan1(self, freq_offset_chan1):
-        self.freq_offset_chan1 = freq_offset_chan1
-
-    def get_freq_offset_chan0(self):
-        return self.freq_offset_chan0
-
-    def set_freq_offset_chan0(self, freq_offset_chan0):
-        self.freq_offset_chan0 = freq_offset_chan0
-        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset_chan0 - self.freq_spread / 2)/self.sensitivity))
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset_chan0 - self.freq_spread*4, self.freq_offset_chan0 + self.freq_spread*4, self.freq_spread*2))
+    def set_freq_offset(self, freq_offset):
+        self.freq_offset = freq_offset
+        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset - self.freq_spread / 2)/self.sensitivity))
+        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset - self.freq_spread/2, self.freq_offset + self.freq_spread/2, self.freq_spread))
 
     def get_freq(self):
         return self.freq
@@ -253,7 +253,7 @@ class ford_tx(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=ford_tx, options=None):
+def main(top_block_cls=ford_tx_freq, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

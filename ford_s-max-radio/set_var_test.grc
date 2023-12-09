@@ -1,0 +1,143 @@
+options:
+  parameters:
+    author: kesenheimer
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: set_var_test
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Not titled yet
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: freq_offset
+  id: variable
+  parameters:
+    comment: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 12]
+    rotation: 0
+    state: enabled
+- name: variable_qtgui_toggle_button_msg_0
+  id: variable_qtgui_toggle_button_msg
+  parameters:
+    comment: ''
+    gui_hint: ''
+    initPressed: 'False'
+    label: ''
+    outputmsgname: value
+    pressBackgroundColor: default
+    pressFontColor: default
+    pressed: '1'
+    relBackgroundColor: default
+    relFontColor: default
+    released: '0'
+    type: int
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [168, 248.0]
+    rotation: 0
+    state: true
+- name: blocks_message_debug_0
+  id: blocks_message_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    en_uvec: 'True'
+    log_level: info
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [392, 204.0]
+    rotation: 0
+    state: true
+- name: blocks_msgpair_to_var_0
+  id: blocks_msgpair_to_var
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    target: freq_offset
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [392, 156.0]
+    rotation: 0
+    state: true
+- name: network_socket_pdu_0_0
+  id: network_socket_pdu
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: echo "Hello World" | nc 127.0.0.1 2001 -
+    host: 127.0.0.1
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mtu: '100'
+    port: '2001'
+    tcp_no_delay: 'True'
+    type: TCP_SERVER
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [176, 136.0]
+    rotation: 0
+    state: disabled
+- name: xmlrpc_server_0
+  id: xmlrpc_server
+  parameters:
+    addr: localhost
+    alias: ''
+    comment: ''
+    port: '8080'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [248, 16.0]
+    rotation: 0
+    state: true
+
+connections:
+- [network_socket_pdu_0_0, pdus, blocks_message_debug_0, log]
+- [network_socket_pdu_0_0, pdus, blocks_msgpair_to_var_0, inpair]
+- [variable_qtgui_toggle_button_msg_0, state, blocks_message_debug_0, log]
+- [variable_qtgui_toggle_button_msg_0, state, blocks_msgpair_to_var_0, inpair]
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.8.0
