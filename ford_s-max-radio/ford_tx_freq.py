@@ -11,10 +11,10 @@
 
 from PyQt5 import Qt
 from gnuradio import qtgui
+from gnuradio import analog
 from gnuradio import blocks
-from gnuradio import filter
-from gnuradio.filter import firdes
 from gnuradio import gr
+from gnuradio.filter import firdes
 from gnuradio.fft import window
 import sys
 import signal
@@ -23,9 +23,10 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import gr, pdu
-from gnuradio import network
+from gnuradio import pdu
 from xmlrpc.server import SimpleXMLRPCServer
 import threading
+import ford_tx_freq_epy_block_0 as epy_block_0  # embedded python block
 import math
 import sip
 
@@ -68,8 +69,9 @@ class ford_tx_freq(gr.top_block, Qt.QWidget):
         ##################################################
         self.freq_spread = freq_spread = 20000
         self.sensitivity = sensitivity = 2 * math.pi * freq_spread
-        self.samp_rate = samp_rate = 1000000
-        self.freq_offset = freq_offset = -330000
+        self.samp_rate = samp_rate = 10000000
+        self.payload = payload = str("\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x35\x55\x4c\xb5\x2b\x34\xb4\xb3\x2d\x4b\x2b\x53\x4a\xab\x32\xaa\xb2\xb5\x2c\xd2\xd3\x54\xab\x52\xb5\x4b\x41\xff")
+        self.freq_offset = freq_offset = 330000
         self.freq = freq = 433930000
         self.bits_per_second = bits_per_second = 4166
 
@@ -82,112 +84,78 @@ class ford_tx_freq(gr.top_block, Qt.QWidget):
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
         self.xmlrpc_server_0_thread.daemon = True
         self.xmlrpc_server_0_thread.start()
-        self.qtgui_waterfall_sink_x_1 = qtgui.waterfall_sink_c(
-            1024, #size
+        self.qtgui_sink_x_0 = qtgui.sink_c(
+            1024, #fftsize
             window.WIN_BLACKMAN_hARRIS, #wintype
             freq, #fc
             samp_rate, #bw
             "", #name
-            1, #number of inputs
+            True, #plotfreq
+            True, #plotwaterfall
+            True, #plottime
+            True, #plotconst
             None # parent
         )
-        self.qtgui_waterfall_sink_x_1.set_update_time(0.10)
-        self.qtgui_waterfall_sink_x_1.enable_grid(False)
-        self.qtgui_waterfall_sink_x_1.enable_axis_labels(True)
+        self.qtgui_sink_x_0.set_update_time(1.0/10)
+        self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.qwidget(), Qt.QWidget)
 
+        self.qtgui_sink_x_0.enable_rf_freq(False)
 
-
-        labels = ['', '', '', '', '',
-                  '', '', '', '', '']
-        colors = [0, 0, 0, 0, 0,
-                  0, 0, 0, 0, 0]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-                  1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_waterfall_sink_x_1.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_waterfall_sink_x_1.set_line_label(i, labels[i])
-            self.qtgui_waterfall_sink_x_1.set_color_map(i, colors[i])
-            self.qtgui_waterfall_sink_x_1.set_line_alpha(i, alphas[i])
-
-        self.qtgui_waterfall_sink_x_1.set_intensity_range(-140, 10)
-
-        self._qtgui_waterfall_sink_x_1_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_1.qwidget(), Qt.QWidget)
-
-        self.top_layout.addWidget(self._qtgui_waterfall_sink_x_1_win)
-        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-            1024, #size
-            window.WIN_BLACKMAN_hARRIS, #wintype
-            freq, #fc
-            samp_rate, #bw
-            "", #name
-            1,
-            None # parent
-        )
-        self.qtgui_freq_sink_x_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0.set_y_axis((-140), 10)
-        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
-        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0.enable_control_panel(False)
-        self.qtgui_freq_sink_x_0.set_fft_window_normalized(False)
-
-
-
-        labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.pdu_pdu_to_tagged_stream_0 = pdu.pdu_to_tagged_stream(gr.types.byte_t, 'packet_len')
-        self.network_socket_pdu_0 = network.socket_pdu('TCP_SERVER', '127.0.0.1', '2000', 100, True)
-        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_fcc(1, firdes.complex_band_pass(1, samp_rate, freq_offset - freq_spread/2, freq_offset + freq_spread/2, freq_spread), 0, samp_rate)
-        self.blocks_vco_f_0 = blocks.vco_f(samp_rate, sensitivity, 1)
+        self.top_layout.addWidget(self._qtgui_sink_x_0_win)
+        self.pdu_tagged_stream_to_pdu_0_0 = pdu.tagged_stream_to_pdu(gr.types.complex_t, 'packet_len')
+        self.pdu_tagged_stream_to_pdu_0 = pdu.tagged_stream_to_pdu(gr.types.complex_t, 'packet_len')
+        self.pdu_pdu_to_tagged_stream_1 = pdu.pdu_to_tagged_stream(gr.types.complex_t, 'packet_len')
+        self.pdu_pdu_to_stream_x_0_0 = pdu.pdu_to_stream_b(pdu.EARLY_BURST_APPEND, 64)
+        self.pdu_pdu_to_stream_x_0 = pdu.pdu_to_stream_b(pdu.EARLY_BURST_APPEND, 64)
+        self.epy_block_0 = epy_block_0.fsk_message_sync_block(payload=payload, period=5000, pause=1000)
+        self.blocks_vco_c_0_0 = blocks.vco_c(samp_rate, sensitivity		, 1)
+        self.blocks_vco_c_0 = blocks.vco_c(samp_rate, sensitivity		, 1)
+        self.blocks_unpack_k_bits_bb_0_0 = blocks.unpack_k_bits_bb(8)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(8)
+        self.blocks_uchar_to_float_0_0 = blocks.uchar_to_float()
         self.blocks_uchar_to_float_0 = blocks.uchar_to_float()
-        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_char*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
-        self.blocks_repeat_0 = blocks.repeat(gr.sizeof_char*1, (int(samp_rate/bits_per_second)))
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff((2 * math.pi * freq_spread/sensitivity))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'Simulation_Ford_433.93MHz_1Msps.raw', False)
-        self.blocks_file_sink_0.set_unbuffered(False)
-        self.blocks_add_const_vxx_0 = blocks.add_const_ff((2 * math.pi * (freq_offset - freq_spread / 2)/sensitivity))
+        self.blocks_stream_to_tagged_stream_1_0 = blocks.stream_to_tagged_stream(gr.sizeof_gr_complex, 1, (int(samp_rate/bits_per_second) * 8), "packet_len")
+        self.blocks_stream_to_tagged_stream_1 = blocks.stream_to_tagged_stream(gr.sizeof_gr_complex, 1, (int(samp_rate/bits_per_second) * 8), "packet_len")
+        self.blocks_repeat_0_0 = blocks.repeat(gr.sizeof_float*1, (int(samp_rate/bits_per_second)))
+        self.blocks_repeat_0 = blocks.repeat(gr.sizeof_float*1, (int(samp_rate/bits_per_second)))
+        self.blocks_multiply_xx_0_0 = blocks.multiply_vcc(1)
+        self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
+        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff((2 * math.pi * freq_spread / sensitivity))
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff((2 * math.pi * freq_spread / sensitivity))
+        self.blocks_add_const_vxx_0_0 = blocks.add_const_ff((2 * math.pi * (- freq_spread / 2) / sensitivity))
+        self.blocks_add_const_vxx_0 = blocks.add_const_ff((2 * math.pi * (- freq_spread / 2) / sensitivity))
+        self.analog_sig_source_x_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, (-freq_offset), 1, 0, 0)
+        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, freq_offset, 1, 0, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.network_socket_pdu_0, 'pdus'), (self.pdu_pdu_to_tagged_stream_0, 'pdus'))
-        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_vco_f_0, 0))
+        self.msg_connect((self.epy_block_0, 'chan0'), (self.pdu_pdu_to_stream_x_0, 'pdus'))
+        self.msg_connect((self.epy_block_0, 'chan1'), (self.pdu_pdu_to_stream_x_0_0, 'pdus'))
+        self.msg_connect((self.pdu_tagged_stream_to_pdu_0, 'pdus'), (self.pdu_pdu_to_tagged_stream_1, 'pdus'))
+        self.msg_connect((self.pdu_tagged_stream_to_pdu_0_0, 'pdus'), (self.pdu_pdu_to_tagged_stream_1, 'pdus'))
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
+        self.connect((self.analog_sig_source_x_0_0, 0), (self.blocks_multiply_xx_0_0, 1))
+        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_repeat_0, 0))
+        self.connect((self.blocks_add_const_vxx_0_0, 0), (self.blocks_repeat_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
-        self.connect((self.blocks_repeat_0, 0), (self.blocks_throttle2_0, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.blocks_uchar_to_float_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_const_vxx_0_0, 0))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.blocks_stream_to_tagged_stream_1, 0))
+        self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_stream_to_tagged_stream_1_0, 0))
+        self.connect((self.blocks_repeat_0, 0), (self.blocks_vco_c_0, 0))
+        self.connect((self.blocks_repeat_0_0, 0), (self.blocks_vco_c_0_0, 0))
+        self.connect((self.blocks_stream_to_tagged_stream_1, 0), (self.pdu_tagged_stream_to_pdu_0, 0))
+        self.connect((self.blocks_stream_to_tagged_stream_1_0, 0), (self.pdu_tagged_stream_to_pdu_0_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_repeat_0, 0))
-        self.connect((self.blocks_vco_f_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blocks_file_sink_0, 0))
-        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_waterfall_sink_x_1, 0))
-        self.connect((self.pdu_pdu_to_tagged_stream_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
+        self.connect((self.blocks_uchar_to_float_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_uchar_to_float_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0_0, 0), (self.blocks_uchar_to_float_0_0, 0))
+        self.connect((self.blocks_vco_c_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_vco_c_0_0, 0), (self.blocks_multiply_xx_0_0, 0))
+        self.connect((self.pdu_pdu_to_stream_x_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
+        self.connect((self.pdu_pdu_to_stream_x_0_0, 0), (self.blocks_unpack_k_bits_bb_0_0, 0))
+        self.connect((self.pdu_pdu_to_tagged_stream_1, 0), (self.qtgui_sink_x_0, 0))
 
 
     def closeEvent(self, event):
@@ -204,44 +172,57 @@ class ford_tx_freq(gr.top_block, Qt.QWidget):
     def set_freq_spread(self, freq_spread):
         self.freq_spread = freq_spread
         self.set_sensitivity(2 * math.pi * self.freq_spread)
-        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset - self.freq_spread / 2)/self.sensitivity))
-        self.blocks_multiply_const_vxx_0.set_k((2 * math.pi * self.freq_spread/self.sensitivity))
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset - self.freq_spread/2, self.freq_offset + self.freq_spread/2, self.freq_spread))
+        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (- self.freq_spread / 2) / self.sensitivity))
+        self.blocks_add_const_vxx_0_0.set_k((2 * math.pi * (- self.freq_spread / 2) / self.sensitivity))
+        self.blocks_multiply_const_vxx_0.set_k((2 * math.pi * self.freq_spread / self.sensitivity))
+        self.blocks_multiply_const_vxx_0_0.set_k((2 * math.pi * self.freq_spread / self.sensitivity))
 
     def get_sensitivity(self):
         return self.sensitivity
 
     def set_sensitivity(self, sensitivity):
         self.sensitivity = sensitivity
-        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset - self.freq_spread / 2)/self.sensitivity))
-        self.blocks_multiply_const_vxx_0.set_k((2 * math.pi * self.freq_spread/self.sensitivity))
+        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (- self.freq_spread / 2) / self.sensitivity))
+        self.blocks_add_const_vxx_0_0.set_k((2 * math.pi * (- self.freq_spread / 2) / self.sensitivity))
+        self.blocks_multiply_const_vxx_0.set_k((2 * math.pi * self.freq_spread / self.sensitivity))
+        self.blocks_multiply_const_vxx_0_0.set_k((2 * math.pi * self.freq_spread / self.sensitivity))
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
+        self.analog_sig_source_x_0_0.set_sampling_freq(self.samp_rate)
         self.blocks_repeat_0.set_interpolation((int(self.samp_rate/self.bits_per_second)))
-        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset - self.freq_spread/2, self.freq_offset + self.freq_spread/2, self.freq_spread))
-        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
-        self.qtgui_waterfall_sink_x_1.set_frequency_range(self.freq, self.samp_rate)
+        self.blocks_repeat_0_0.set_interpolation((int(self.samp_rate/self.bits_per_second)))
+        self.blocks_stream_to_tagged_stream_1.set_packet_len((int(self.samp_rate/self.bits_per_second) * 8))
+        self.blocks_stream_to_tagged_stream_1.set_packet_len_pmt((int(self.samp_rate/self.bits_per_second) * 8))
+        self.blocks_stream_to_tagged_stream_1_0.set_packet_len((int(self.samp_rate/self.bits_per_second) * 8))
+        self.blocks_stream_to_tagged_stream_1_0.set_packet_len_pmt((int(self.samp_rate/self.bits_per_second) * 8))
+        self.qtgui_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
+
+    def get_payload(self):
+        return self.payload
+
+    def set_payload(self, payload):
+        self.payload = payload
+        self.epy_block_0.payload = self.payload
 
     def get_freq_offset(self):
         return self.freq_offset
 
     def set_freq_offset(self, freq_offset):
         self.freq_offset = freq_offset
-        self.blocks_add_const_vxx_0.set_k((2 * math.pi * (self.freq_offset - self.freq_spread / 2)/self.sensitivity))
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, self.freq_offset - self.freq_spread/2, self.freq_offset + self.freq_spread/2, self.freq_spread))
+        self.analog_sig_source_x_0.set_frequency(self.freq_offset)
+        self.analog_sig_source_x_0_0.set_frequency((-self.freq_offset))
 
     def get_freq(self):
         return self.freq
 
     def set_freq(self, freq):
         self.freq = freq
-        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
-        self.qtgui_waterfall_sink_x_1.set_frequency_range(self.freq, self.samp_rate)
+        self.qtgui_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
 
     def get_bits_per_second(self):
         return self.bits_per_second
@@ -249,6 +230,11 @@ class ford_tx_freq(gr.top_block, Qt.QWidget):
     def set_bits_per_second(self, bits_per_second):
         self.bits_per_second = bits_per_second
         self.blocks_repeat_0.set_interpolation((int(self.samp_rate/self.bits_per_second)))
+        self.blocks_repeat_0_0.set_interpolation((int(self.samp_rate/self.bits_per_second)))
+        self.blocks_stream_to_tagged_stream_1.set_packet_len((int(self.samp_rate/self.bits_per_second) * 8))
+        self.blocks_stream_to_tagged_stream_1.set_packet_len_pmt((int(self.samp_rate/self.bits_per_second) * 8))
+        self.blocks_stream_to_tagged_stream_1_0.set_packet_len((int(self.samp_rate/self.bits_per_second) * 8))
+        self.blocks_stream_to_tagged_stream_1_0.set_packet_len_pmt((int(self.samp_rate/self.bits_per_second) * 8))
 
 
 

@@ -90,7 +90,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [776, 248.0]
+    coordinate: [736, 160.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -139,7 +139,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [776, 308.0]
+    coordinate: [736, 220.0]
     rotation: 0
     state: enabled
 - name: analog_quadrature_demod_cf_0_0
@@ -155,7 +155,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [776, 548.0]
+    coordinate: [736, 460.0]
     rotation: 0
     state: enabled
 - name: analog_simple_squelch_cc_0
@@ -172,7 +172,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 304.0]
+    coordinate: [576, 216.0]
     rotation: 0
     state: true
 - name: analog_simple_squelch_cc_0_0
@@ -189,7 +189,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 544.0]
+    coordinate: [576, 456.0]
     rotation: 0
     state: true
 - name: blocks_file_sink_0
@@ -207,9 +207,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [240, 412.0]
+    coordinate: [200, 324.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_file_sink_0_0_0_0_0
   id: blocks_file_sink
   parameters:
@@ -225,7 +225,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1848, 236.0]
+    coordinate: [1808, 148.0]
     rotation: 0
     state: enabled
 - name: blocks_file_sink_0_0_0_0_0_0
@@ -243,7 +243,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1680, 172.0]
+    coordinate: [1640, 84.0]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0_0_0_0_0_0
@@ -261,7 +261,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1680, 604.0]
+    coordinate: [1640, 516.0]
     rotation: 0
     state: enabled
 - name: blocks_file_sink_0_0_0_0_0_0_1
@@ -279,7 +279,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1856, 100.0]
+    coordinate: [1816, 12.0]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0_0_0_0_1
@@ -297,7 +297,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1848, 476.0]
+    coordinate: [1808, 388.0]
     rotation: 0
     state: enabled
 - name: blocks_file_source_0
@@ -307,7 +307,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: /Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/ford_s-max-radio/Simulation_Ford_433.93MHz_1Msps.raw
+    file: Simulation-Received_Ford_433.93MHz_1Msps.raw
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -319,9 +319,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 272.0]
+    coordinate: [24, 184.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -334,7 +334,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2080, 340.0]
+    coordinate: [2040, 252.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0
@@ -354,7 +354,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1680, 240.0]
+    coordinate: [1640, 152.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0_0
@@ -374,7 +374,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1504, 176.0]
+    coordinate: [1464, 88.0]
     rotation: 0
     state: disabled
 - name: blocks_repack_bits_bb_0_0_0
@@ -394,7 +394,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1512, 608.0]
+    coordinate: [1472, 520.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0_1
@@ -414,7 +414,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1680, 304.0]
+    coordinate: [1640, 216.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0_1_0
@@ -434,7 +434,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1680, 544.0]
+    coordinate: [1640, 456.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0_2
@@ -454,7 +454,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1680, 480.0]
+    coordinate: [1640, 392.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0_3
@@ -474,7 +474,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1688, 104.0]
+    coordinate: [1648, 16.0]
     rotation: 0
     state: disabled
 - name: blocks_throttle2_0
@@ -495,9 +495,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [224, 288.0]
+    coordinate: [184, 200.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_wavfile_sink_0
   id: blocks_wavfile_sink
   parameters:
@@ -517,7 +517,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [912, 400.0]
+    coordinate: [872, 312.0]
     rotation: 180
     state: true
 - name: digital_binary_slicer_fb_0
@@ -532,7 +532,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1368, 260.0]
+    coordinate: [1328, 172.0]
     rotation: 0
     state: true
 - name: digital_binary_slicer_fb_0_0
@@ -547,7 +547,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1368, 500.0]
+    coordinate: [1328, 412.0]
     rotation: 0
     state: true
 - name: digital_symbol_sync_xx_0
@@ -574,7 +574,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1088, 260.0]
+    coordinate: [1048, 172.0]
     rotation: 0
     state: enabled
 - name: digital_symbol_sync_xx_0_0
@@ -601,7 +601,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1088, 500.0]
+    coordinate: [1048, 412.0]
     rotation: 0
     state: enabled
 - name: extract_payload_0
@@ -621,7 +621,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1504, 240.0]
+    coordinate: [1464, 152.0]
     rotation: 0
     state: true
 - name: extract_payload_0_0
@@ -641,7 +641,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1504, 480.0]
+    coordinate: [1464, 392.0]
     rotation: 0
     state: true
 - name: freq_xlating_fir_filter_xxx_0
@@ -661,7 +661,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 292.0]
+    coordinate: [384, 204.0]
     rotation: 0
     state: enabled
 - name: freq_xlating_fir_filter_xxx_0_0
@@ -681,7 +681,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 532.0]
+    coordinate: [384, 444.0]
     rotation: 0
     state: enabled
 - name: manchester_decode_0
@@ -701,7 +701,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1504, 96.0]
+    coordinate: [1464, 8.0]
     rotation: 0
     state: disabled
 - name: note_0
@@ -716,7 +716,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1504, 384.0]
+    coordinate: [1464, 296.0]
     rotation: 0
     state: true
 - name: pdu_tagged_stream_to_pdu_0
@@ -733,7 +733,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1848, 308.0]
+    coordinate: [1808, 220.0]
     rotation: 0
     state: true
 - name: pdu_tagged_stream_to_pdu_0_0
@@ -750,7 +750,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1848, 548.0]
+    coordinate: [1808, 460.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -831,7 +831,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [576, 404.0]
+    coordinate: [536, 316.0]
     rotation: 180
     state: disabled
 - name: qtgui_time_sink_x_0
@@ -928,7 +928,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1360, 364.0]
+    coordinate: [1320, 276.0]
     rotation: 0
     state: enabled
 - name: qtgui_waterfall_sink_x_0_0
@@ -989,7 +989,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 412.0]
+    coordinate: [384, 324.0]
     rotation: 0
     state: true
 - name: rational_resampler_xxx_0
@@ -1009,7 +1009,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 296.0]
+    coordinate: [880, 208.0]
     rotation: 0
     state: true
 - name: rational_resampler_xxx_0_0
@@ -1029,7 +1029,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 536.0]
+    coordinate: [880, 448.0]
     rotation: 0
     state: true
 - name: rtlsdr_source_0
@@ -1386,9 +1386,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 496.0]
+    coordinate: [24, 404.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: soapy_hackrf_source_0
   id: soapy_hackrf_source
   parameters:
@@ -1409,7 +1409,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 416.0]
+    coordinate: [24, 328.0]
     rotation: 0
     state: disabled
 

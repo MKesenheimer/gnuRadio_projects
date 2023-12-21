@@ -1,6 +1,7 @@
 options:
   parameters:
     author: kesenheimer
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -59,8 +60,8 @@ blocks:
 - name: payload
   id: variable
   parameters:
-    comment: ''
-    value: np.load("/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/OOK-sender/payload.npy")
+    comment: See file generate-payload-file.py how the payload file was generated.
+    value: np.load("/Users/kesenheimer/Hacking/SDR/gnuRadio_projects/OOK-sender/payload.npy")
   states:
     bus_sink: false
     bus_source: false
@@ -93,13 +94,14 @@ blocks:
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
+    showports: 'False'
     type: complex
     waveform: analog.GR_COS_WAVE
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [528, 244.0]
+    coordinate: [536, 244.0]
     rotation: 0
     state: true
 - name: blocks_file_sink_0
@@ -153,16 +155,18 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 172.0]
+    coordinate: [384, 172.0]
     rotation: 0
     state: true
-- name: blocks_throttle_0
-  id: blocks_throttle
+- name: blocks_throttle2_0
+  id: blocks_throttle2
   parameters:
     affinity: ''
     alias: ''
     comment: ''
     ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
     maxoutbuf: '0'
     minoutbuf: '0'
     samples_per_second: samp_rate
@@ -172,7 +176,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [560, 172.0]
+    coordinate: [552, 168.0]
     rotation: 0
     state: true
 - name: blocks_vector_insert_x_0
@@ -191,7 +195,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 160.0]
+    coordinate: [200, 164.0]
     rotation: 0
     state: enabled
 - name: blocks_vector_source_x_0
@@ -211,7 +215,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [48, 160.0]
+    coordinate: [48, 164.0]
     rotation: 0
     state: true
 - name: iio_pluto_sink_0
@@ -220,14 +224,18 @@ blocks:
     affinity: ''
     alias: ''
     attenuation1: '0.0'
-    auto_filter: 'True'
     bandwidth: '20000000'
     buffer_size: '32768'
     comment: ''
     cyclic: 'False'
     filter: ''
+    filter_source: '''Auto'''
+    fpass: '0'
     frequency: int(433e6)
+    fstop: '0'
+    len_tag_key: ''
     samplerate: int(samp_rate)
+    type: fc32
     uri: usb:20.25.5
   states:
     bus_sink: false
@@ -247,19 +255,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [632, 12.0]
-    rotation: 0
-    state: true
-- name: note_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: See file generate-payload-file.py how the payload file was generated.
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [344, 68.0]
     rotation: 0
     state: true
 - name: qtgui_sink_x_0
@@ -283,7 +278,7 @@ blocks:
     showports: 'False'
     showrf: 'False'
     type: complex
-    wintype: firdes.WIN_BLACKMAN_hARRIS
+    wintype: window.WIN_BLACKMAN_hARRIS
   states:
     bus_sink: false
     bus_source: false
@@ -297,10 +292,11 @@ connections:
 - [blocks_multiply_xx_0, '0', blocks_file_sink_0, '0']
 - [blocks_multiply_xx_0, '0', iio_pluto_sink_0, '0']
 - [blocks_multiply_xx_0, '0', qtgui_sink_x_0, '0']
-- [blocks_repeat_0, '0', blocks_throttle_0, '0']
-- [blocks_throttle_0, '0', blocks_multiply_xx_0, '0']
+- [blocks_repeat_0, '0', blocks_throttle2_0, '0']
+- [blocks_throttle2_0, '0', blocks_multiply_xx_0, '0']
 - [blocks_vector_insert_x_0, '0', blocks_repeat_0, '0']
 - [blocks_vector_source_x_0, '0', blocks_vector_insert_x_0, '0']
 
 metadata:
   file_format: 1
+  grc_version: 3.10.8.0

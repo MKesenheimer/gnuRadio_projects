@@ -14,7 +14,6 @@ from gnuradio import qtgui
 from gnuradio import analog
 import math
 from gnuradio import blocks
-import pmt
 from gnuradio import blocks, gr
 from gnuradio import digital
 from gnuradio import filter
@@ -31,6 +30,8 @@ from gnuradio import gr, pdu
 from gnuradio.qtgui import Range, RangeWidget
 from PyQt5 import QtCore
 import extract_payload
+import osmosdr
+import time
 import sip
 
 
@@ -85,6 +86,21 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self._squelch_threshold_range = Range(-90, -10, 1, -40, 200)
         self._squelch_threshold_win = RangeWidget(self._squelch_threshold_range, self.set_squelch_threshold, "'squelch_threshold'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_threshold_win)
+        self.rtlsdr_source_0 = osmosdr.source(
+            args="numchan=" + str(1) + " " + ""
+        )
+        self.rtlsdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.rtlsdr_source_0.set_sample_rate(samp_rate)
+        self.rtlsdr_source_0.set_center_freq(freq, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
+        self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
+        self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
+        self.rtlsdr_source_0.set_gain_mode(False, 0)
+        self.rtlsdr_source_0.set_gain(10, 0)
+        self.rtlsdr_source_0.set_if_gain(20, 0)
+        self.rtlsdr_source_0.set_bb_gain(20, 0)
+        self.rtlsdr_source_0.set_antenna('', 0)
+        self.rtlsdr_source_0.set_bandwidth(samp_rate, 0)
         self.rational_resampler_xxx_0_0 = filter.rational_resampler_fff(
                 interpolation=2,
                 decimation=4,
@@ -218,21 +234,20 @@ class ford_rx(gr.top_block, Qt.QWidget):
             blocks.FORMAT_FLOAT,
             False
             )
-        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
         self.blocks_repack_bits_bb_0_2 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0_1_0 = blocks.repack_bits_bb(1, 8, 'packet_len', False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0_1 = blocks.repack_bits_bb(1, 8, 'packet_len', False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0_0_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/Users/kesenheimer/Documents/Basteln/SDR/gnuRadio_projects/ford_s-max-radio/Simulation_Ford_433.93MHz_1Msps.raw', True, 0, 0)
-        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_sink_0_0_0_0_0_1 = blocks.file_sink(gr.sizeof_char*1, 'payload_chan1.bin', False)
         self.blocks_file_sink_0_0_0_0_0_1.set_unbuffered(True)
         self.blocks_file_sink_0_0_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, 'decoded_chan1.bin', False)
         self.blocks_file_sink_0_0_0_0_0_0_0.set_unbuffered(True)
         self.blocks_file_sink_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, 'payload_chan0.bin', False)
         self.blocks_file_sink_0_0_0_0_0.set_unbuffered(True)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'Simulation-Received_Ford_433.93MHz_1Msps.raw', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
         self.analog_simple_squelch_cc_0_0 = analog.simple_squelch_cc(squelch_threshold, 1)
         self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 1)
         self.analog_quadrature_demod_cf_0_0 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation)))
@@ -248,15 +263,11 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_0_0, 0), (self.rational_resampler_xxx_0_0, 0))
         self.connect((self.analog_simple_squelch_cc_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.analog_simple_squelch_cc_0_0, 0), (self.analog_quadrature_demod_cf_0_0, 0))
-        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_0_0, 0), (self.blocks_file_sink_0_0_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_1, 0), (self.pdu_tagged_stream_to_pdu_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_1_0, 0), (self.pdu_tagged_stream_to_pdu_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_2, 0), (self.blocks_file_sink_0_0_0_0_0_1, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0_0, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.extract_payload_0, 0))
         self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.blocks_repack_bits_bb_0_0_0, 0))
         self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.extract_payload_0_0, 0))
@@ -274,6 +285,10 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.connect((self.rational_resampler_xxx_0, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_wavfile_sink_0, 1))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.digital_symbol_sync_xx_0_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
 
 
     def closeEvent(self, event):
@@ -308,11 +323,12 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate/(2*math.pi*self.fsk_deviation)))
         self.analog_quadrature_demod_cf_0_0.set_gain((self.samp_rate/(2*math.pi*self.fsk_deviation)))
-        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
         self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.low_pass(1.0, self.samp_rate, self.freq_spread/2, self.freq_spread))
         self.freq_xlating_fir_filter_xxx_0_0.set_taps(firdes.low_pass(1.0, self.samp_rate, self.freq_spread/2, self.freq_spread))
         self.qtgui_time_sink_x_0.set_samp_rate(int(self.samp_rate/2))
         self.qtgui_waterfall_sink_x_0_0.set_frequency_range(self.freq, self.samp_rate)
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+        self.rtlsdr_source_0.set_bandwidth(self.samp_rate, 0)
 
     def get_fsk_deviation(self):
         return self.fsk_deviation
@@ -342,6 +358,7 @@ class ford_rx(gr.top_block, Qt.QWidget):
     def set_freq(self, freq):
         self.freq = freq
         self.qtgui_waterfall_sink_x_0_0.set_frequency_range(self.freq, self.samp_rate)
+        self.rtlsdr_source_0.set_center_freq(self.freq, 0)
 
 
 
