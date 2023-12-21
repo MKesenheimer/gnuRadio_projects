@@ -194,6 +194,23 @@ blocks:
     coordinate: [832, 140.0]
     rotation: 0
     state: true
+- name: blocks_message_strobe_0
+  id: blocks_message_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msg: pmt.string_to_symbol(payload)
+    period: '5000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [64, 88.0]
+    rotation: 180
+    state: true
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -228,23 +245,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [480, 300.0]
-    rotation: 0
-    state: true
-- name: blocks_null_sink_0
-  id: blocks_null_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_sink: '[[0,],]'
-    comment: ''
-    num_inputs: '1'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1112, 380.0]
     rotation: 0
     state: true
 - name: blocks_null_source_0
@@ -412,53 +412,41 @@ blocks:
 - name: epy_block_0
   id: epy_block
   parameters:
-    _source_code: "\"\"\"\nSynchronized fsk message block\n\"\"\"\n\n#  epy_block_0.py\n\
-      #  created 10/17/2019\n\nimport numpy as np\nfrom gnuradio import gr\nimport\
-      \ pmt\nimport threading\nimport time\n\nrun = 1\n\nclass fsk_message_sync_block(gr.sync_block):\n\
-      \    def __init__(self, payload: str = \"\", freq_offset: int = 0, period: int\
-      \ = 1000, pause: int = 50):\n        gr.sync_block.__init__(self,\n        \
-      \    name = \"Synchronized FSK message block\",\n            in_sig = None,\n\
-      \            out_sig = None) # [np.byte]\n        self.message_port_register_in(pmt.intern('msg_in'))\n\
+    _source_code: "\"\"\"\nFSK channelizer\n\"\"\"\n\n#  epy_block_0.py\n#  created\
+      \ 10/17/2019\n\nfrom gnuradio import gr\nimport pmt\nimport time\n\nclass fsk_message_sync_block(gr.sync_block):\n\
+      \    def __init__(self, freq_offset: int = 0, pause: int = 50):\n        gr.sync_block.__init__(self,\n\
+      \            name = \"FSK channelizer\",\n            in_sig = None,\n     \
+      \       out_sig = None)\n        self.message_port_register_in(pmt.intern('trigger'))\n\
       \        self.message_port_register_out(pmt.intern('freq'))\n        self.message_port_register_out(pmt.intern('payload'))\n\
-      \        self.set_msg_handler(pmt.intern('msg_in'), self.handle_msg)\n     \
-      \   self.payload = payload\n        self.freq_offset = freq_offset\n       \
-      \ self.period = period\n        self.pause = pause\n\n    def start(self):\n\
-      \        self.x = threading.Thread(target=self.run, args=())\n        print(\"\
-      Starting FSK payload generation thread\")\n        self.x.start()\n\n    def\
-      \ stop(self):\n        print(\"Stopping FSK payload generation thread\")\n \
-      \       global run\n        run = 0\n        self.x.join()\n        return True\n\
-      \n    def handle_msg(self, msg):\n        print(msg)\n    \n    def work(self,\
-      \ input_items, output_items):\n        #_len = len(self.payload)\n        #if\
-      \ _len > 0:\n        #    for x in range(_len):\n        #        output_items[0][x]\
-      \ = ord(self.payload[x])\n        #        return (_len)\n        #else:\n \
-      \       #    return 0\n        pass\n\n    def send_payload(self, freq_offset):\n\
-      \        freq_msg = pmt.dict_add(pmt.make_dict(), pmt.intern(\"freq\"), pmt.from_double(freq_offset))\n\
-      \        payload_bytes = [ord(i) for i in self.payload]\n        payload_msg\
-      \ = pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(len(payload_bytes), payload_bytes))\n\
-      \        self.message_port_pub(pmt.intern('freq'), freq_msg)\n        self.message_port_pub(pmt.intern('payload'),\
-      \ payload_msg)\n\n    def run(self):\n        global run\n        while run:\n\
-      \            self.send_payload(self.freq_offset)\n            time.sleep(self.pause\
-      \ / 1000)\n            self.send_payload(-self.freq_offset)\n            time.sleep(self.pause\
-      \ / 1000)\n            self.send_payload(self.freq_offset)\n            time.sleep(self.period\
-      \ / 1000)"
+      \        self.set_msg_handler(pmt.intern('trigger'), self.handle_msg)\n    \
+      \    self.freq_offset = freq_offset\n        self.pause = pause\n\n    def send_payload(self,\
+      \ payload, freq_offset):\n        freq_msg = pmt.dict_add(pmt.make_dict(), pmt.intern(\"\
+      freq\"), pmt.from_double(freq_offset))\n        payload_bytes = [ord(i) for\
+      \ i in payload]\n        payload_msg = pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(len(payload_bytes),\
+      \ payload_bytes))\n        self.message_port_pub(pmt.intern('freq'), freq_msg)\n\
+      \        self.message_port_pub(pmt.intern('payload'), payload_msg)\n\n    def\
+      \ run(self, payload):\n        self.send_payload(payload, self.freq_offset)\n\
+      \        time.sleep(self.pause / 1000)\n        self.send_payload(payload, -self.freq_offset)\n\
+      \        time.sleep(self.pause / 1000)\n        self.send_payload(payload, self.freq_offset)\n\
+      \        time.sleep(self.pause / 1000)\n\n    def handle_msg(self, msg):\n \
+      \       payload = pmt.symbol_to_string(msg)\n        print(\"-> Sending:\")\n\
+      \        print(\":\".join(\"{:02x}\".format(ord(i)) for i in payload))\n   \
+      \     self.run(payload)"
     affinity: ''
     alias: ''
     comment: ''
     freq_offset: freq_offset
     maxoutbuf: '0'
     minoutbuf: '0'
-    pause: '500'
-    payload: payload
-    period: '1000'
+    pause: '250'
   states:
-    _io_cache: ('Synchronized FSK message block', 'fsk_message_sync_block', [('payload',
-      "''"), ('freq_offset', '0'), ('period', '1000'), ('pause', '50')], [('msg_in',
-      'message', 1)], [('payload', 'message', 1), ('freq', 'message', 1)], '', ['freq_offset',
-      'pause', 'payload', 'period'])
+    _io_cache: ('FSK channelizer', 'fsk_message_sync_block', [('freq_offset', '0'),
+      ('pause', '50')], [('trigger', 'message', 1)], [('payload', 'message', 1), ('freq',
+      'message', 1)], '', ['freq_offset', 'pause'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 140.0]
+    coordinate: [64, 140.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -484,9 +472,29 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1040, 8.0]
+    coordinate: [136, 48.0]
     rotation: 0
     state: true
+- name: network_socket_pdu_0
+  id: network_socket_pdu
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: echo "Hello World" | nc 127.0.0.1 2000 -
+    host: 127.0.0.1
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mtu: '100'
+    port: '2000'
+    tcp_no_delay: 'True'
+    type: TCP_SERVER
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [64, 216.0]
+    rotation: 180
+    state: disabled
 - name: pdu_pdu_to_stream_x_0
   id: pdu_pdu_to_stream_x
   parameters:
@@ -598,12 +606,12 @@ blocks:
 connections:
 - [analog_sig_source_x_0, '0', blocks_multiply_xx_0, '0']
 - [blocks_add_const_vxx_0, '0', virtual_sink_0, '0']
+- [blocks_message_strobe_0, strobe, epy_block_0, trigger]
 - [blocks_multiply_const_vxx_0, '0', blocks_add_const_vxx_0, '0']
 - [blocks_multiply_xx_0, '0', blocks_stream_to_tagged_stream_0, '0']
 - [blocks_null_source_0, '0', blocks_stream_mux_0, '1']
 - [blocks_null_source_0_0, '0', blocks_stream_mux_0_0, '0']
 - [blocks_repeat_0, '0', blocks_vco_c_0, '0']
-- [blocks_stream_mux_0, '0', blocks_null_sink_0, '0']
 - [blocks_stream_mux_0, '0', qtgui_sink_x_0, '0']
 - [blocks_stream_mux_0, '0', soapy_hackrf_sink_0, '0']
 - [blocks_stream_mux_0_0, '0', blocks_stream_mux_0, '0']
@@ -613,6 +621,7 @@ connections:
 - [blocks_vco_c_0, '0', blocks_multiply_xx_0, '1']
 - [epy_block_0, freq, analog_sig_source_x_0, cmd]
 - [epy_block_0, payload, pdu_pdu_to_stream_x_0, pdus]
+- [network_socket_pdu_0, pdus, epy_block_0, trigger]
 - [pdu_pdu_to_stream_x_0, '0', blocks_unpack_k_bits_bb_0, '0']
 - [virtual_source_0, '0', blocks_repeat_0, '0']
 
