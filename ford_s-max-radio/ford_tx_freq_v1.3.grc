@@ -37,7 +37,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '4166'
+    value: '4300'
   states:
     bus_sink: false
     bus_source: false
@@ -90,19 +90,31 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [912, 8.0]
+    coordinate: [928, 8.0]
     rotation: 0
     state: true
 - name: payload
   id: variable
   parameters:
-    comment: ''
-    value: str("\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x35\x55\x4c\xb5\x2b\x34\xb4\xb3\x2d\x4b\x2b\x53\x4a\xab\x32\xaa\xb2\xb5\x2c\xd2\xd3\x54\xab\x52\xb5\x4b\x41\xff")
+    comment: default payload
+    value: str("\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x4D\x55\x53\x2D\x4A\xCD\x2D\x2C\xCB\x4D\x2B\x35\x52\xAA\xCB\x55\x55\x4B\x2D\x32\xD3\x52\xCA\xD5\x53\x32\xB0")
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [664, 8.0]
+    coordinate: [576, 8.0]
+    rotation: 0
+    state: true
+- name: payload_bytes
+  id: variable
+  parameters:
+    comment: ''
+    value: '[ord(i) for i in payload]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 8.0]
     rotation: 0
     state: true
 - name: samp_rate
@@ -126,7 +138,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [808, 8.0]
+    coordinate: [824, 8.0]
     rotation: 0
     state: true
 - name: samples_per_padding
@@ -138,7 +150,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [808, 64.0]
+    coordinate: [824, 64.0]
     rotation: 0
     state: true
 - name: sensitivity
@@ -194,6 +206,21 @@ blocks:
     coordinate: [832, 140.0]
     rotation: 0
     state: true
+- name: blocks_message_debug_0
+  id: blocks_message_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    en_uvec: 'True'
+    log_level: info
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [72, 404.0]
+    rotation: 0
+    state: disabled
 - name: blocks_message_strobe_0
   id: blocks_message_strobe
   parameters:
@@ -202,15 +229,15 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    msg: pmt.string_to_symbol(payload)
-    period: '5000'
+    msg: pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(len(payload_bytes), payload_bytes))
+    period: '1000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
     coordinate: [64, 88.0]
     rotation: 180
-    state: true
+    state: disabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -420,25 +447,23 @@ blocks:
       \        self.message_port_register_out(pmt.intern('freq'))\n        self.message_port_register_out(pmt.intern('payload'))\n\
       \        self.set_msg_handler(pmt.intern('trigger'), self.handle_msg)\n    \
       \    self.freq_offset = freq_offset\n        self.pause = pause\n\n    def send_payload(self,\
-      \ payload, freq_offset):\n        freq_msg = pmt.dict_add(pmt.make_dict(), pmt.intern(\"\
-      freq\"), pmt.from_double(freq_offset))\n        payload_bytes = [ord(i) for\
-      \ i in payload]\n        payload_msg = pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(len(payload_bytes),\
-      \ payload_bytes))\n        self.message_port_pub(pmt.intern('freq'), freq_msg)\n\
-      \        self.message_port_pub(pmt.intern('payload'), payload_msg)\n\n    def\
-      \ run(self, payload):\n        self.send_payload(payload, self.freq_offset)\n\
+      \ payload_msg, freq_offset):\n        freq_msg = pmt.dict_add(pmt.make_dict(),\
+      \ pmt.intern(\"freq\"), pmt.from_double(freq_offset))\n        self.message_port_pub(pmt.intern('freq'),\
+      \ freq_msg)\n        self.message_port_pub(pmt.intern('payload'), payload_msg)\n\
+      \n    def run(self, payload):\n        self.send_payload(payload, self.freq_offset)\n\
       \        time.sleep(self.pause / 1000)\n        self.send_payload(payload, -self.freq_offset)\n\
       \        time.sleep(self.pause / 1000)\n        self.send_payload(payload, self.freq_offset)\n\
       \        time.sleep(self.pause / 1000)\n\n    def handle_msg(self, msg):\n \
-      \       payload = pmt.symbol_to_string(msg)\n        print(\"-> Sending:\")\n\
-      \        print(\":\".join(\"{:02x}\".format(ord(i)) for i in payload))\n   \
-      \     self.run(payload)"
+      \       payload = pmt.to_python(pmt.cdr(msg))\n        print(\"-> Sending:\"\
+      )\n        print(\"\".join(\"{:02x}\".format(i) for i in payload))\n       \
+      \ self.run(msg)"
     affinity: ''
     alias: ''
     comment: ''
     freq_offset: freq_offset
     maxoutbuf: '0'
     minoutbuf: '0'
-    pause: '250'
+    pause: '190'
   states:
     _io_cache: ('FSK channelizer', 'fsk_message_sync_block', [('freq_offset', '0'),
       ('pause', '50')], [('trigger', 'message', 1)], [('payload', 'message', 1), ('freq',
@@ -480,7 +505,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    comment: echo "Hello World" | nc 127.0.0.1 2000 -
+    comment: echo "<payload>" | nc 127.0.0.1 2000 -
     host: 127.0.0.1
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -494,7 +519,7 @@ blocks:
     bus_structure: null
     coordinate: [64, 216.0]
     rotation: 180
-    state: disabled
+    state: enabled
 - name: pdu_pdu_to_stream_x_0
   id: pdu_pdu_to_stream_x
   parameters:
@@ -554,14 +579,14 @@ blocks:
     dev_args: ''
     samp_rate: samp_rate
     type: fc32
-    vga: '30'
+    vga: '47'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
     coordinate: [1112, 220.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: virtual_sink_0
   id: virtual_sink
   parameters:
@@ -588,24 +613,11 @@ blocks:
     coordinate: [24, 332.0]
     rotation: 0
     state: true
-- name: xmlrpc_server_0
-  id: xmlrpc_server
-  parameters:
-    addr: localhost
-    alias: ''
-    comment: ''
-    port: '8080'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [576, 8.0]
-    rotation: 0
-    state: true
 
 connections:
 - [analog_sig_source_x_0, '0', blocks_multiply_xx_0, '0']
 - [blocks_add_const_vxx_0, '0', virtual_sink_0, '0']
+- [blocks_message_strobe_0, strobe, blocks_message_debug_0, log]
 - [blocks_message_strobe_0, strobe, epy_block_0, trigger]
 - [blocks_multiply_const_vxx_0, '0', blocks_add_const_vxx_0, '0']
 - [blocks_multiply_xx_0, '0', blocks_stream_to_tagged_stream_0, '0']
@@ -621,6 +633,7 @@ connections:
 - [blocks_vco_c_0, '0', blocks_multiply_xx_0, '1']
 - [epy_block_0, freq, analog_sig_source_x_0, cmd]
 - [epy_block_0, payload, pdu_pdu_to_stream_x_0, pdus]
+- [network_socket_pdu_0, pdus, blocks_message_debug_0, log]
 - [network_socket_pdu_0, pdus, epy_block_0, trigger]
 - [pdu_pdu_to_stream_x_0, '0', blocks_unpack_k_bits_bb_0, '0']
 - [virtual_source_0, '0', blocks_repeat_0, '0']

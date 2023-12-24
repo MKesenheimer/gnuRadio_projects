@@ -225,64 +225,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1808, 148.0]
+    coordinate: [1808, 36.0]
     rotation: 0
     state: enabled
 - name: blocks_file_sink_0_0_0_0_0_0
-  id: blocks_file_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    append: 'False'
-    comment: ''
-    file: decoded_chan0.bin
-    type: byte
-    unbuffered: 'True'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1640, 84.0]
-    rotation: 0
-    state: disabled
-- name: blocks_file_sink_0_0_0_0_0_0_0
-  id: blocks_file_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    append: 'False'
-    comment: ''
-    file: decoded_chan1.bin
-    type: byte
-    unbuffered: 'True'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1640, 516.0]
-    rotation: 0
-    state: enabled
-- name: blocks_file_sink_0_0_0_0_0_0_1
-  id: blocks_file_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    append: 'False'
-    comment: ''
-    file: manchester_chan0.bin
-    type: byte
-    unbuffered: 'True'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1816, 12.0]
-    rotation: 0
-    state: disabled
-- name: blocks_file_sink_0_0_0_0_0_1
   id: blocks_file_sink
   parameters:
     affinity: ''
@@ -300,6 +246,42 @@ blocks:
     coordinate: [1808, 388.0]
     rotation: 0
     state: enabled
+- name: blocks_file_sink_0_0_0_0_0_0_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: decoded_chan1.bin
+    type: byte
+    unbuffered: 'True'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1624, 588.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0_0_0_0_0_0_0_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: decoded_chan0.bin
+    type: byte
+    unbuffered: 'True'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1624, 236.0]
+    rotation: 0
+    state: enabled
 - name: blocks_file_source_0
   id: blocks_file_source
   parameters:
@@ -307,7 +289,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: Simulation-Received_Ford_433.93MHz_1Msps.raw
+    file: Sarah-open_Ford_433.93MHz_1Msps.raw
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -321,7 +303,7 @@ blocks:
     bus_structure: null
     coordinate: [24, 184.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -334,7 +316,41 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2040, 252.0]
+    coordinate: [2512, 188.0]
+    rotation: 0
+    state: enabled
+- name: blocks_null_sink_0
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 156.0]
+    rotation: 0
+    state: true
+- name: blocks_null_sink_0_0
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 508.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0
@@ -354,7 +370,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1640, 152.0]
+    coordinate: [1640, 40.0]
     rotation: 0
     state: true
 - name: blocks_repack_bits_bb_0_0
@@ -374,9 +390,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1464, 88.0]
+    coordinate: [1640, 392.0]
     rotation: 0
-    state: disabled
+    state: true
 - name: blocks_repack_bits_bb_0_0_0
   id: blocks_repack_bits_bb
   parameters:
@@ -394,50 +410,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1472, 520.0]
+    coordinate: [1464, 592.0]
     rotation: 0
     state: true
-- name: blocks_repack_bits_bb_0_1
-  id: blocks_repack_bits_bb
-  parameters:
-    affinity: ''
-    alias: ''
-    align_output: 'False'
-    comment: ''
-    endianness: gr.GR_MSB_FIRST
-    k: '1'
-    l: '8'
-    len_tag_key: packet_len
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1640, 216.0]
-    rotation: 0
-    state: true
-- name: blocks_repack_bits_bb_0_1_0
-  id: blocks_repack_bits_bb
-  parameters:
-    affinity: ''
-    alias: ''
-    align_output: 'False'
-    comment: ''
-    endianness: gr.GR_MSB_FIRST
-    k: '1'
-    l: '8'
-    len_tag_key: packet_len
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1640, 456.0]
-    rotation: 0
-    state: true
-- name: blocks_repack_bits_bb_0_2
+- name: blocks_repack_bits_bb_0_0_0_0
   id: blocks_repack_bits_bb
   parameters:
     affinity: ''
@@ -454,10 +430,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1640, 392.0]
+    coordinate: [1464, 240.0]
     rotation: 0
     state: true
-- name: blocks_repack_bits_bb_0_3
+- name: blocks_repack_bits_bb_0_1_1
   id: blocks_repack_bits_bb
   parameters:
     affinity: ''
@@ -467,16 +443,36 @@ blocks:
     endianness: gr.GR_MSB_FIRST
     k: '1'
     l: '8'
-    len_tag_key: '""'
+    len_tag_key: packet_len
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1648, 16.0]
+    coordinate: [1640, 96.0]
     rotation: 0
-    state: disabled
+    state: enabled
+- name: blocks_repack_bits_bb_0_1_1_0
+  id: blocks_repack_bits_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    align_output: 'False'
+    comment: ''
+    endianness: gr.GR_MSB_FIRST
+    k: '1'
+    l: '8'
+    len_tag_key: packet_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 448.0]
+    rotation: 0
+    state: enabled
 - name: blocks_throttle2_0
   id: blocks_throttle2
   parameters:
@@ -497,7 +493,7 @@ blocks:
     bus_structure: null
     coordinate: [184, 200.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_wavfile_sink_0
   id: blocks_wavfile_sink
   parameters:
@@ -519,7 +515,7 @@ blocks:
     bus_structure: null
     coordinate: [872, 312.0]
     rotation: 180
-    state: true
+    state: disabled
 - name: digital_binary_slicer_fb_0
   id: digital_binary_slicer_fb
   parameters:
@@ -604,18 +600,126 @@ blocks:
     coordinate: [1048, 412.0]
     rotation: 0
     state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nPaylaod logger\n\"\"\"\n\n#  epy_block_0.py\n#  created\
+      \ 10/17/2019\n\nfrom gnuradio import gr\nimport pmt\nimport time\n\nclass fsk_message_sync_block(gr.sync_block):\n\
+      \    def __init__(self):\n        gr.sync_block.__init__(self,\n           \
+      \ name = \"Payload logger\",\n            in_sig = None,\n            out_sig\
+      \ = None)\n        self.message_port_register_in(pmt.intern('message'))\n  \
+      \      self.set_msg_handler(pmt.intern('message'), self.handle_msg)\n\n    def\
+      \ handle_msg(self, msg):\n        buff = pmt.to_python(pmt.cdr(msg))\n     \
+      \   print(\"-> Received:\")\n        #print(\"payload: \", end=\"\")\n     \
+      \   #print(\"\".join(\"{:02x}\".format(i) for i in buff))\n        payload =\
+      \ \"\\\\x\" + \"\\\\x\".join(\"{:02x}\".format(i) for i in buff)\n        header\
+      \ = 24 * \"\\\\x55\"\n        frame = header + payload\n        print(\"frame:\
+      \ {}\".format(frame))\n            "
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Payload logger', 'fsk_message_sync_block', [], [('message', 'message',
+      1)], [], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2112, 228.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nManchester decode\n\"\"\"\n\n#  epy_block_0.py\n#  created\
+      \ 10/17/2019\n\nfrom gnuradio import gr\nimport pmt\nimport time\n\nclass fsk_message_sync_block(gr.sync_block):\n\
+      \    def __init__(self):\n        gr.sync_block.__init__(self,\n           \
+      \ name = \"Manchester decode\",\n            in_sig = None,\n            out_sig\
+      \ = None)\n        self.message_port_register_in(pmt.intern('msg'))\n      \
+      \  self.message_port_register_out(pmt.intern('msg'))\n        self.set_msg_handler(pmt.intern('msg'),\
+      \ self.handle_msg)\n\n    def access_bit(self, data, num):\n        base = int(num\
+      \ // 8)\n        shift = int(num % 8)\n        return (data[base] >> shift)\
+      \ & 0x1\n\n    def observe_edge(self, first, second):\n        if first < second:\n\
+      \            return 0\n        if first > second:\n            return 1\n\n\
+      \    def handle_msg(self, msg):\n        buff = pmt.to_python(pmt.cdr(msg))\n\
+      \        #print(\"-> Received:\")\n        #print(\"bits ({}): \".format(len(buff)),\
+      \ end=\"\")\n        #print(\"\".join(\"{}\".format(i) for i in buff))\n   \
+      \     #manchester = [self.observe_edge(buff[i], buff[i+1]) for i in range(0,\
+      \ len(buff), 2)]\n        l = len(buff)\n        l = l - 1 if l % 2 else l #\
+      \ makes length even by subtracting 1 if odd\n        manchester = []\n     \
+      \   for i in range(0, l, 2):\n            if (a := self.observe_edge(buff[i],\
+      \ buff[i+1])) is not None: manchester.append(a)\n        #print(\"manchester:\
+      \ \", end=\"\")\n        #print(\"\".join(\"{}\".format(i) for i in manchester))\n\
+      \        msg = pmt.cons(pmt.string_to_symbol(\"frame\"), pmt.to_pmt(manchester))\n\
+      \        self.message_port_pub(pmt.intern('msg'), msg)"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Manchester decode', 'fsk_message_sync_block', [], [('msg', 'message',
+      1)], [('msg', 'message', 1)], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2112, 276.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nManchester decode\n\"\"\"\n\n#  epy_block_0.py\n#  created\
+      \ 10/17/2019\n\nfrom gnuradio import gr\nimport pmt\nimport time\n\nclass fsk_message_sync_block(gr.sync_block):\n\
+      \    def __init__(self, sync_word = (0,1,1,1,1,1,1,1,1)):\n        gr.sync_block.__init__(self,\n\
+      \            name = \"Extract payload\",\n            in_sig = None,\n     \
+      \       out_sig = None)\n        self.message_port_register_in(pmt.intern('msg'))\n\
+      \        self.message_port_register_out(pmt.intern('bits'))\n        self.message_port_register_out(pmt.intern('bytes'))\n\
+      \        self.set_msg_handler(pmt.intern('msg'), self.handle_msg)\n        self.sync_word\
+      \ = list(sync_word)\n\n    def find_list_position(self, main_list, sublist):\n\
+      \        try:\n            position = -1\n            while True:\n        \
+      \        position = main_list.index(sublist[0], position + 1)\n            \
+      \    if main_list[position:position + len(sublist)] == sublist:\n          \
+      \          return position\n        except ValueError:\n            return -1\n\
+      \n    def handle_msg(self, msg):\n        buff = pmt.to_python(pmt.cdr(msg))\n\
+      \        #print(buff)\n        #print(buff.index(self.sync_word))\n        pos\
+      \ = self.find_list_position(buff, self.sync_word)\n        payload = buff[pos\
+      \ + len(self.sync_word):]\n        msg = pmt.cons(pmt.string_to_symbol(\"payload\"\
+      ), pmt.to_pmt(payload))\n        self.message_port_pub(pmt.intern('bits'), msg)\n\
+      \        byte_array = [int(\"\".join(map(str, payload[i:i+8])), 2) for i in\
+      \ range(0, len(payload), 8)]\n        byte_str = \"\".join(\"{:02x}\".format(i)\
+      \ for i in byte_array)\n        msg = pmt.cons(pmt.string_to_symbol(\"payload\"\
+      ), pmt.to_pmt(byte_str))\n        self.message_port_pub(pmt.intern('bytes'),\
+      \ msg)"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    sync_word: (0,1,1,1,1,1,1,1,1)
+  states:
+    _io_cache: ('Extract payload', 'fsk_message_sync_block', [('sync_word', '(0, 1,
+      1, 1, 1, 1, 1, 1, 1)')], [('msg', 'message', 1)], [('bytes', 'message', 1),
+      ('bits', 'message', 1)], '', ['sync_word'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2272, 260.0]
+    rotation: 0
+    state: enabled
 - name: extract_payload_0
   id: extract_payload
   parameters:
     affinity: ''
     alias: ''
-    bitpattern: (0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1)
+    bitpattern: (1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1)
     comment: ''
     headerLength: '200'
     lengthTagKey: packet_len
     maxoutbuf: '0'
     minoutbuf: '0'
-    payloadLength: '218'
+    payloadLength: '208'
     prependHeader: 'True'
   states:
     bus_sink: false
@@ -629,13 +733,53 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    bitpattern: (0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1)
+    bitpattern: (1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1)
     comment: ''
     headerLength: '200'
     lengthTagKey: packet_len
     maxoutbuf: '0'
     minoutbuf: '0'
-    payloadLength: '218'
+    payloadLength: '208'
+    prependHeader: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1464, 504.0]
+    rotation: 0
+    state: true
+- name: extract_payload_0_1
+  id: extract_payload
+  parameters:
+    affinity: ''
+    alias: ''
+    bitpattern: (0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1)
+    comment: ''
+    headerLength: '200'
+    lengthTagKey: packet_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    payloadLength: '208'
+    prependHeader: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1464, 40.0]
+    rotation: 0
+    state: true
+- name: extract_payload_0_1_0
+  id: extract_payload
+  parameters:
+    affinity: ''
+    alias: ''
+    bitpattern: (0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1)
+    comment: ''
+    headerLength: '200'
+    lengthTagKey: packet_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    payloadLength: '208'
     prependHeader: 'True'
   states:
     bus_sink: false
@@ -684,34 +828,18 @@ blocks:
     coordinate: [384, 444.0]
     rotation: 0
     state: enabled
-- name: manchester_decode_0
-  id: manchester_decode
-  parameters:
-    affinity: ''
-    alias: ''
-    bit_mode: '0'
-    comment: ''
-    endianess: '0'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    nsync_symbols: '0'
-    samples_per_symbol: '2'
-    type: byte
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1464, 8.0]
-    rotation: 0
-    state: disabled
 - name: note_0
   id: note
   parameters:
     alias: ''
-    comment: ''
-    note: 'Alternative: xxd -b decoded.bin| awk ''{print $2$3$4$5$6$7}'' | tr -d ''\n''
-      | awk ''{ while (match($0, /01010101010101011001010101/)) { print substr($0,
-      RSTART, 240); $0 = substr($0, RSTART + 1); } }'' | perl -lape ''$_=unpack"H*",pack"B*",$_'''
+    comment: "Alternative: \nxxd -b decoded_chan0.bin | \\\nawk '{print $2$3$4$5$6$7}'\
+      \ | tr -d '\\n' | \\\nawk '{ while (match($0, /01010101010101010101010101001101/))\
+      \ \\\n{ print substr($0, RSTART, 240); $0 = substr($0, RSTART + 1); } }' | \\\
+      \nperl -lape '$_=unpack\"H*\",pack\"B*\",$_'"
+    note: 'Alternative: xxd -b decoded_chan0.bin | awk ''{print $2$3$4$5$6$7}'' |
+      tr -d ''\n'' | awk ''{ while (match($0, /01010101010101010101010101001101/))
+      { print substr($0, RSTART, 240); $0 = substr($0, RSTART + 1); } }'' | perl -lape
+      ''$_=unpack"H*",pack"B*",$_'''
   states:
     bus_sink: false
     bus_source: false
@@ -719,7 +847,7 @@ blocks:
     coordinate: [1464, 296.0]
     rotation: 0
     state: true
-- name: pdu_tagged_stream_to_pdu_0
+- name: pdu_tagged_stream_to_pdu_0_0_0_0
   id: pdu_tagged_stream_to_pdu
   parameters:
     affinity: ''
@@ -733,10 +861,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1808, 220.0]
+    coordinate: [1808, 188.0]
     rotation: 0
-    state: true
-- name: pdu_tagged_stream_to_pdu_0_0
+    state: enabled
+- name: pdu_tagged_stream_to_pdu_0_0_0_0_0
   id: pdu_tagged_stream_to_pdu
   parameters:
     affinity: ''
@@ -750,9 +878,43 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1808, 460.0]
+    coordinate: [1808, 540.0]
     rotation: 0
-    state: true
+    state: enabled
+- name: pdu_tagged_stream_to_pdu_0_1
+  id: pdu_tagged_stream_to_pdu
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    tag: packet_len
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1808, 100.0]
+    rotation: 0
+    state: enabled
+- name: pdu_tagged_stream_to_pdu_0_1_0
+  id: pdu_tagged_stream_to_pdu
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    tag: packet_len
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1808, 452.0]
+    rotation: 0
+    state: enabled
 - name: qtgui_freq_sink_x_0
   id: qtgui_freq_sink_x
   parameters:
@@ -1388,7 +1550,7 @@ blocks:
     bus_structure: null
     coordinate: [24, 404.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: soapy_hackrf_source_0
   id: soapy_hackrf_source
   parameters:
@@ -1424,31 +1586,39 @@ connections:
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0, '0']
 - [blocks_repack_bits_bb_0_0, '0', blocks_file_sink_0_0_0_0_0_0, '0']
 - [blocks_repack_bits_bb_0_0_0, '0', blocks_file_sink_0_0_0_0_0_0_0, '0']
-- [blocks_repack_bits_bb_0_1, '0', pdu_tagged_stream_to_pdu_0, '0']
-- [blocks_repack_bits_bb_0_1_0, '0', pdu_tagged_stream_to_pdu_0_0, '0']
-- [blocks_repack_bits_bb_0_2, '0', blocks_file_sink_0_0_0_0_0_1, '0']
-- [blocks_repack_bits_bb_0_3, '0', blocks_file_sink_0_0_0_0_0_0_1, '0']
+- [blocks_repack_bits_bb_0_0_0_0, '0', blocks_file_sink_0_0_0_0_0_0_0_0, '0']
+- [blocks_repack_bits_bb_0_1_1, '0', pdu_tagged_stream_to_pdu_0_1, '0']
+- [blocks_repack_bits_bb_0_1_1_0, '0', pdu_tagged_stream_to_pdu_0_1_0, '0']
 - [blocks_throttle2_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [blocks_throttle2_0, '0', freq_xlating_fir_filter_xxx_0_0, '0']
 - [blocks_throttle2_0, '0', qtgui_waterfall_sink_x_0_0, '0']
-- [digital_binary_slicer_fb_0, '0', blocks_repack_bits_bb_0_0, '0']
+- [digital_binary_slicer_fb_0, '0', blocks_repack_bits_bb_0_0_0_0, '0']
 - [digital_binary_slicer_fb_0, '0', extract_payload_0, '0']
-- [digital_binary_slicer_fb_0, '0', manchester_decode_0, '0']
+- [digital_binary_slicer_fb_0, '0', extract_payload_0_1, '0']
 - [digital_binary_slicer_fb_0_0, '0', blocks_repack_bits_bb_0_0_0, '0']
 - [digital_binary_slicer_fb_0_0, '0', extract_payload_0_0, '0']
+- [digital_binary_slicer_fb_0_0, '0', extract_payload_0_1_0, '0']
 - [digital_symbol_sync_xx_0, '0', digital_binary_slicer_fb_0, '0']
 - [digital_symbol_sync_xx_0, '0', qtgui_time_sink_x_0, '0']
 - [digital_symbol_sync_xx_0_0, '0', digital_binary_slicer_fb_0_0, '0']
 - [digital_symbol_sync_xx_0_0, '0', qtgui_time_sink_x_0, '1']
-- [extract_payload_0, '0', blocks_repack_bits_bb_0, '0']
-- [extract_payload_0, '1', blocks_repack_bits_bb_0_1, '0']
-- [extract_payload_0_0, '0', blocks_repack_bits_bb_0_2, '0']
-- [extract_payload_0_0, '1', blocks_repack_bits_bb_0_1_0, '0']
+- [epy_block_0_0, msg, epy_block_0_0_0, msg]
+- [epy_block_0_0_0, bytes, blocks_message_debug_0, log]
+- [extract_payload_0, '0', blocks_null_sink_0, '0']
+- [extract_payload_0, '1', pdu_tagged_stream_to_pdu_0_0_0_0, '0']
+- [extract_payload_0_0, '0', blocks_null_sink_0_0, '0']
+- [extract_payload_0_0, '1', pdu_tagged_stream_to_pdu_0_0_0_0_0, '0']
+- [extract_payload_0_1, '0', blocks_repack_bits_bb_0, '0']
+- [extract_payload_0_1, '1', blocks_repack_bits_bb_0_1_1, '0']
+- [extract_payload_0_1_0, '0', blocks_repack_bits_bb_0_0, '0']
+- [extract_payload_0_1_0, '1', blocks_repack_bits_bb_0_1_1_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', analog_simple_squelch_cc_0, '0']
 - [freq_xlating_fir_filter_xxx_0_0, '0', analog_simple_squelch_cc_0_0, '0']
-- [manchester_decode_0, '0', blocks_repack_bits_bb_0_3, '0']
-- [pdu_tagged_stream_to_pdu_0, pdus, blocks_message_debug_0, log]
-- [pdu_tagged_stream_to_pdu_0_0, pdus, blocks_message_debug_0, log]
+- [pdu_tagged_stream_to_pdu_0_0_0_0, pdus, blocks_message_debug_0, log]
+- [pdu_tagged_stream_to_pdu_0_0_0_0, pdus, epy_block_0_0, msg]
+- [pdu_tagged_stream_to_pdu_0_0_0_0_0, pdus, epy_block_0_0, msg]
+- [pdu_tagged_stream_to_pdu_0_1, pdus, epy_block_0, message]
+- [pdu_tagged_stream_to_pdu_0_1_0, pdus, epy_block_0, message]
 - [rational_resampler_xxx_0, '0', blocks_wavfile_sink_0, '0']
 - [rational_resampler_xxx_0, '0', digital_symbol_sync_xx_0, '0']
 - [rational_resampler_xxx_0_0, '0', blocks_wavfile_sink_0, '1']

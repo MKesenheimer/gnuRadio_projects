@@ -22,10 +22,8 @@ class fsk_message_sync_block(gr.sync_block):
         self.freq_offset = freq_offset
         self.pause = pause
 
-    def send_payload(self, payload, freq_offset):
+    def send_payload(self, payload_msg, freq_offset):
         freq_msg = pmt.dict_add(pmt.make_dict(), pmt.intern("freq"), pmt.from_double(freq_offset))
-        payload_bytes = [ord(i) for i in payload]
-        payload_msg = pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(len(payload_bytes), payload_bytes))
         self.message_port_pub(pmt.intern('freq'), freq_msg)
         self.message_port_pub(pmt.intern('payload'), payload_msg)
 
@@ -38,7 +36,7 @@ class fsk_message_sync_block(gr.sync_block):
         time.sleep(self.pause / 1000)
 
     def handle_msg(self, msg):
-        payload = pmt.symbol_to_string(msg)
+        payload = pmt.to_python(pmt.cdr(msg))
         print("-> Sending:")
-        print(":".join("{:02x}".format(ord(i)) for i in payload))
-        self.run(payload)
+        print("".join("{:02x}".format(i) for i in payload))
+        self.run(msg)
