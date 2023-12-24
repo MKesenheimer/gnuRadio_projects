@@ -12,3 +12,4 @@ __pycache__
 codes.txt
 stdout
 build
+*.log
