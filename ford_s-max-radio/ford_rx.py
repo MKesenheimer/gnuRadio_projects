@@ -14,7 +14,6 @@ from gnuradio import qtgui
 from gnuradio import analog
 import math
 from gnuradio import blocks
-import pmt
 from gnuradio import blocks, gr
 from gnuradio import digital
 from gnuradio import filter
@@ -28,6 +27,7 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import gr, pdu
+from gnuradio import soapy
 from gnuradio.qtgui import Range, RangeWidget
 from PyQt5 import QtCore
 import extract_payload
@@ -88,6 +88,20 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self._squelch_threshold_range = Range(-90, -10, 1, -40, 200)
         self._squelch_threshold_win = RangeWidget(self._squelch_threshold_range, self.set_squelch_threshold, "'squelch_threshold'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_threshold_win)
+        self.soapy_hackrf_source_0 = None
+        dev = 'driver=hackrf'
+        stream_args = ''
+        tune_args = ['']
+        settings = ['']
+
+        self.soapy_hackrf_source_0 = soapy.source(dev, "fc32", 1, '',
+                                  stream_args, tune_args, settings)
+        self.soapy_hackrf_source_0.set_sample_rate(0, samp_rate)
+        self.soapy_hackrf_source_0.set_bandwidth(0, 0)
+        self.soapy_hackrf_source_0.set_frequency(0, freq)
+        self.soapy_hackrf_source_0.set_gain(0, 'AMP', False)
+        self.soapy_hackrf_source_0.set_gain(0, 'LNA', min(max(16, 0.0), 40.0))
+        self.soapy_hackrf_source_0.set_gain(0, 'VGA', min(max(16, 0.0), 62.0))
         self.rational_resampler_xxx_0_0 = filter.rational_resampler_fff(
                 interpolation=2,
                 decimation=4,
@@ -220,7 +234,6 @@ class ford_rx(gr.top_block, Qt.QWidget):
             [])
         self.digital_binary_slicer_fb_0_0 = digital.binary_slicer_fb()
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
-        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
         self.blocks_repack_bits_bb_0_1_1_0 = blocks.repack_bits_bb(1, 8, 'packet_len', False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0_1_1 = blocks.repack_bits_bb(1, 8, 'packet_len', False, gr.GR_MSB_FIRST)
         self.blocks_repack_bits_bb_0_0_0_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
@@ -230,8 +243,6 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, 'Sarah-open_Ford_433.93MHz_1Msps.raw', True, 0, 0)
-        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_sink_0_0_0_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, 'decoded_chan0.bin', False)
         self.blocks_file_sink_0_0_0_0_0_0_0_0.set_unbuffered(True)
         self.blocks_file_sink_0_0_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, 'decoded_chan1.bin', False)
@@ -240,6 +251,8 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.blocks_file_sink_0_0_0_0_0_0.set_unbuffered(True)
         self.blocks_file_sink_0_0_0_0_0 = blocks.file_sink(gr.sizeof_char*1, 'payload_chan0.bin', False)
         self.blocks_file_sink_0_0_0_0_0.set_unbuffered(True)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'Matthias-open3_Ford_433.93MHz_1Msps.raw', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
         self.analog_simple_squelch_cc_0_0 = analog.simple_squelch_cc(squelch_threshold, 1)
         self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 1)
         self.analog_quadrature_demod_cf_0_0 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation)))
@@ -250,6 +263,7 @@ class ford_rx(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.msg_connect((self.epy_block_0_0, 'msg'), (self.epy_block_0_0_0, 'msg'))
+        self.msg_connect((self.epy_block_0_0_0, 'bits'), (self.blocks_message_debug_0, 'log'))
         self.msg_connect((self.epy_block_0_0_0, 'bytes'), (self.blocks_message_debug_0, 'log'))
         self.msg_connect((self.pdu_tagged_stream_to_pdu_0_0_0_0, 'pdus'), (self.blocks_message_debug_0, 'log'))
         self.msg_connect((self.pdu_tagged_stream_to_pdu_0_0_0_0, 'pdus'), (self.epy_block_0_0, 'msg'))
@@ -260,16 +274,12 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_0_0, 0), (self.rational_resampler_xxx_0_0, 0))
         self.connect((self.analog_simple_squelch_cc_0, 0), (self.analog_quadrature_demod_cf_0, 0))
         self.connect((self.analog_simple_squelch_cc_0_0, 0), (self.analog_quadrature_demod_cf_0_0, 0))
-        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_0, 0), (self.blocks_file_sink_0_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_0_0, 0), (self.blocks_file_sink_0_0_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_0_0_0, 0), (self.blocks_file_sink_0_0_0_0_0_0_0_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_1_1, 0), (self.pdu_tagged_stream_to_pdu_0_1, 0))
         self.connect((self.blocks_repack_bits_bb_0_1_1_0, 0), (self.pdu_tagged_stream_to_pdu_0_1_0, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0_0, 0))
-        self.connect((self.blocks_throttle2_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_repack_bits_bb_0_0_0_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.extract_payload_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.extract_payload_0_1, 0))
@@ -292,6 +302,10 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.connect((self.freq_xlating_fir_filter_xxx_0_0, 0), (self.analog_simple_squelch_cc_0_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.digital_symbol_sync_xx_0_0, 0))
+        self.connect((self.soapy_hackrf_source_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.soapy_hackrf_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.soapy_hackrf_source_0, 0), (self.freq_xlating_fir_filter_xxx_0_0, 0))
+        self.connect((self.soapy_hackrf_source_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
 
 
     def closeEvent(self, event):
@@ -326,11 +340,11 @@ class ford_rx(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.analog_quadrature_demod_cf_0.set_gain((self.samp_rate/(2*math.pi*self.fsk_deviation)))
         self.analog_quadrature_demod_cf_0_0.set_gain((self.samp_rate/(2*math.pi*self.fsk_deviation)))
-        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
         self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.low_pass(1.0, self.samp_rate, self.freq_spread/2, self.freq_spread))
         self.freq_xlating_fir_filter_xxx_0_0.set_taps(firdes.low_pass(1.0, self.samp_rate, self.freq_spread/2, self.freq_spread))
         self.qtgui_time_sink_x_0.set_samp_rate(int(self.samp_rate/2))
         self.qtgui_waterfall_sink_x_0_0.set_frequency_range(self.freq, self.samp_rate)
+        self.soapy_hackrf_source_0.set_sample_rate(0, self.samp_rate)
 
     def get_fsk_deviation(self):
         return self.fsk_deviation
@@ -360,6 +374,7 @@ class ford_rx(gr.top_block, Qt.QWidget):
     def set_freq(self, freq):
         self.freq = freq
         self.qtgui_waterfall_sink_x_0_0.set_frequency_range(self.freq, self.samp_rate)
+        self.soapy_hackrf_source_0.set_frequency(0, self.freq)
 
 
 

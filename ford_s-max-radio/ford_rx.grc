@@ -199,7 +199,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: Simulation-Received_Ford_433.93MHz_1Msps.raw
+    file: Matthias-open3_Ford_433.93MHz_1Msps.raw
     type: complex
     unbuffered: 'False'
     vlen: '1'
@@ -207,9 +207,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 324.0]
+    coordinate: [224, 324.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_file_sink_0_0_0_0_0
   id: blocks_file_sink
   parameters:
@@ -303,7 +303,7 @@ blocks:
     bus_structure: null
     coordinate: [24, 184.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -493,7 +493,7 @@ blocks:
     bus_structure: null
     coordinate: [184, 200.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_wavfile_sink_0
   id: blocks_wavfile_sink
   parameters:
@@ -1573,7 +1573,7 @@ blocks:
     bus_structure: null
     coordinate: [24, 328.0]
     rotation: 0
-    state: disabled
+    state: enabled
 
 connections:
 - [analog_quadrature_demod_cf_0, '0', rational_resampler_xxx_0, '0']
@@ -1603,6 +1603,7 @@ connections:
 - [digital_symbol_sync_xx_0_0, '0', digital_binary_slicer_fb_0_0, '0']
 - [digital_symbol_sync_xx_0_0, '0', qtgui_time_sink_x_0, '1']
 - [epy_block_0_0, msg, epy_block_0_0_0, msg]
+- [epy_block_0_0_0, bits, blocks_message_debug_0, log]
 - [epy_block_0_0_0, bytes, blocks_message_debug_0, log]
 - [extract_payload_0, '0', blocks_null_sink_0, '0']
 - [extract_payload_0, '1', pdu_tagged_stream_to_pdu_0_0_0_0, '0']
